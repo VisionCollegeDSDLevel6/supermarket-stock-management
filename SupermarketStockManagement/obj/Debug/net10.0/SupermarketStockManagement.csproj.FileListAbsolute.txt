@@ -297,3 +297,7 @@ C:\Users\jhin8\606\supermarket-stock-management\SupermarketStockManagement\obj\D
 C:\Users\jhin8\606\supermarket-stock-management\SupermarketStockManagement\obj\Debug\net10.0\SupermarketStockManagement.pdb
 C:\Users\jhin8\606\supermarket-stock-management\SupermarketStockManagement\obj\Debug\net10.0\SupermarketStockManagement.genruntimeconfig.cache
 C:\Users\jhin8\606\supermarket-stock-management\SupermarketStockManagement\obj\Debug\net10.0\ref\SupermarketStockManagement.dll
+C:\Users\jhin8\606\supermarket-stock-management\SupermarketStockManagement\bin\Debug\net10.0\Microsoft.OpenApi.dll
+C:\Users\jhin8\606\supermarket-stock-management\SupermarketStockManagement\bin\Debug\net10.0\Swashbuckle.AspNetCore.Swagger.dll
+C:\Users\jhin8\606\supermarket-stock-management\SupermarketStockManagement\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+C:\Users\jhin8\606\supermarket-stock-management\SupermarketStockManagement\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerUI.dll

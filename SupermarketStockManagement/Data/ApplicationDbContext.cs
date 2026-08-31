@@ -15,6 +15,7 @@ namespace SupermarketStockManagement.Data
         public DbSet<Product> Products { get; set; }
         public DbSet<Stock> Stocks { get; set; }
         public DbSet<StockHistory> StockHistories { get; set; }
+        public DbSet<Staff> Staff { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
