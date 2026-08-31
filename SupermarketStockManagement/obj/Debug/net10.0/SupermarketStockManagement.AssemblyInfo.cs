@@ -10,11 +10,12 @@
 using System;
 using System.Reflection;
 
+[assembly: Microsoft.AspNetCore.Identity.UI.UIFrameworkAttribute("Bootstrap5")]
 [assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("aspnet-SupermarketStockManagement-5f678e49-7dbc-459b-862b-656610d18216")]
 [assembly: System.Reflection.AssemblyCompanyAttribute("SupermarketStockManagement")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9c117338905ef166693e1d60b11824a90cc482c2")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+86928629a95d8a8bbd4f0f7a148bbc3f721989ff")]
 [assembly: System.Reflection.AssemblyProductAttribute("SupermarketStockManagement")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SupermarketStockManagement")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
