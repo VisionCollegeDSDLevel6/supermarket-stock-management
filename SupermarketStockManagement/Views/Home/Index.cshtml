@@ -1,8 +1,730 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model SupermarketStockManagement.Models.DashboardViewModel
+
+@using System.Text.Json
+
+@{
+    ViewData["Title"] = "Dashboard";
+
+    var productNamesJson =
+        JsonSerializer.Serialize(Model.ProductNames);
+
+    var stockQuantitiesJson =
+        JsonSerializer.Serialize(Model.StockQuantities);
+
+    var categoryNamesJson =
+        JsonSerializer.Serialize(Model.CategoryNames);
+
+    var categoryCountsJson =
+        JsonSerializer.Serialize(Model.CategoryProductCounts);
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+
+<!-- Page heading -->
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Dashboard</h1>
+
+        <p class="page-subtitle">
+            Welcome back. Here is an overview of your supermarket inventory.
+        </p>
+    </div>
+
+    <div class="dashboard-date">
+        @DateTime.Now.ToString("dddd, dd MMMM yyyy")
+    </div>
 </div>
+
+
+<!-- Summary cards -->
+<div class="row g-4 mb-4">
+
+    <!-- Total Products -->
+    <div class="col-xl col-md-6">
+        <div class="dashboard-card statistic-card">
+            <div class="statistic-card-content">
+                <div class="statistic-icon purple-icon">
+                    <svg viewBox="0 0 24 24"
+                         width="23"
+                         height="23"
+                         fill="none">
+
+                        <path d="M4 7L12 3L20 7L12 11L4 7Z"
+                              stroke="currentColor"
+                              stroke-width="2" />
+
+                        <path d="M4 7V17L12 21L20 17V7"
+                              stroke="currentColor"
+                              stroke-width="2" />
+
+                        <path d="M12 11V21"
+                              stroke="currentColor"
+                              stroke-width="2" />
+                    </svg>
+                </div>
+
+                <div>
+                    <p class="statistic-label">
+                        Total Products
+                    </p>
+
+                    <h2 class="statistic-value">
+                        @Model.TotalProducts
+                    </h2>
+                </div>
+            </div>
+
+            <span class="statistic-description">
+                Products registered
+            </span>
+        </div>
+    </div>
+
+
+    <!-- Categories -->
+    <div class="col-xl col-md-6">
+        <div class="dashboard-card statistic-card">
+            <div class="statistic-card-content">
+                <div class="statistic-icon blue-icon">
+                    <svg viewBox="0 0 24 24"
+                         width="23"
+                         height="23"
+                         fill="none">
+
+                        <rect x="3"
+                              y="3"
+                              width="7"
+                              height="7"
+                              rx="2"
+                              stroke="currentColor"
+                              stroke-width="2" />
+
+                        <rect x="14"
+                              y="3"
+                              width="7"
+                              height="7"
+                              rx="2"
+                              stroke="currentColor"
+                              stroke-width="2" />
+
+                        <rect x="3"
+                              y="14"
+                              width="7"
+                              height="7"
+                              rx="2"
+                              stroke="currentColor"
+                              stroke-width="2" />
+
+                        <rect x="14"
+                              y="14"
+                              width="7"
+                              height="7"
+                              rx="2"
+                              stroke="currentColor"
+                              stroke-width="2" />
+                    </svg>
+                </div>
+
+                <div>
+                    <p class="statistic-label">
+                        Categories
+                    </p>
+
+                    <h2 class="statistic-value">
+                        @Model.TotalCategories
+                    </h2>
+                </div>
+            </div>
+
+            <span class="statistic-description">
+                Product groups
+            </span>
+        </div>
+    </div>
+
+
+    <!-- Total Stock -->
+    <div class="col-xl col-md-6">
+        <div class="dashboard-card statistic-card">
+            <div class="statistic-card-content">
+                <div class="statistic-icon green-icon">
+                    <svg viewBox="0 0 24 24"
+                         width="23"
+                         height="23"
+                         fill="none">
+
+                        <path d="M4 20V10M10 20V4M16 20V13M22 20V7"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linecap="round" />
+                    </svg>
+                </div>
+
+                <div>
+                    <p class="statistic-label">
+                        Total Stock
+                    </p>
+
+                    <h2 class="statistic-value">
+                        @Model.TotalStockQuantity
+                    </h2>
+                </div>
+            </div>
+
+            <span class="statistic-description">
+                Units available
+            </span>
+        </div>
+    </div>
+
+
+    <!-- Low Stock -->
+    <div class="col-xl col-md-6">
+        <div class="dashboard-card statistic-card">
+            <div class="statistic-card-content">
+                <div class="statistic-icon orange-icon">
+                    <svg viewBox="0 0 24 24"
+                         width="23"
+                         height="23"
+                         fill="none">
+
+                        <path d="M12 3L22 20H2L12 3Z"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linejoin="round" />
+
+                        <path d="M12 9V14"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linecap="round" />
+
+                        <circle cx="12"
+                                cy="17"
+                                r="1"
+                                fill="currentColor" />
+                    </svg>
+                </div>
+
+                <div>
+                    <p class="statistic-label">
+                        Low Stock
+                    </p>
+
+                    <h2 class="statistic-value">
+                        @Model.LowStockProducts
+                    </h2>
+                </div>
+            </div>
+
+            <span class="statistic-description">
+                Requires attention
+            </span>
+        </div>
+    </div>
+
+
+    <!-- Staff -->
+    <div class="col-xl col-md-6">
+        <div class="dashboard-card statistic-card">
+            <div class="statistic-card-content">
+                <div class="statistic-icon red-icon">
+                    <svg viewBox="0 0 24 24"
+                         width="23"
+                         height="23"
+                         fill="none">
+
+                        <circle cx="12"
+                                cy="8"
+                                r="4"
+                                stroke="currentColor"
+                                stroke-width="2" />
+
+                        <path d="M4 21C4 16.6 7.6 13 12 13C16.4 13 20 16.6 20 21"
+                              stroke="currentColor"
+                              stroke-width="2" />
+                    </svg>
+                </div>
+
+                <div>
+                    <p class="statistic-label">
+                        Staff
+                    </p>
+
+                    <h2 class="statistic-value">
+                        @Model.TotalStaff
+                    </h2>
+                </div>
+            </div>
+
+            <span class="statistic-description">
+                Team members
+            </span>
+        </div>
+    </div>
+</div>
+
+
+<!-- Charts -->
+<div class="row g-4 mb-4">
+
+    <!-- Stock chart -->
+    <div class="col-xl-8">
+        <div class="content-card chart-card">
+            <div class="content-card-header">
+                <div>
+                    <h2 class="content-card-title">
+                        Inventory Overview
+                    </h2>
+
+                    <p class="card-subtitle">
+                        Current quantity by product
+                    </p>
+                </div>
+
+                <span class="chart-badge">
+                    Top 8 products
+                </span>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="stockChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Category chart -->
+    <div class="col-xl-4">
+        <div class="content-card chart-card">
+            <div class="content-card-header">
+                <div>
+                    <h2 class="content-card-title">
+                        Products by Category
+                    </h2>
+
+                    <p class="card-subtitle">
+                        Product distribution
+                    </p>
+                </div>
+            </div>
+
+            <div class="chart-container doughnut-container">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Tables -->
+<div class="row g-4">
+
+    <!-- Recent products -->
+    <div class="col-xl-7">
+        <div class="content-card">
+            <div class="content-card-header">
+                <div>
+                    <h2 class="content-card-title">
+                        Recent Products
+                    </h2>
+
+                    <p class="card-subtitle">
+                        Latest products added to inventory
+                    </p>
+                </div>
+
+                <a asp-controller="Products"
+                   asp-action="Index"
+                   class="view-all-link">
+                    View all
+                </a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table dashboard-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if (Model.RecentProducts.Any())
+                        {
+                            foreach (var product in Model.RecentProducts)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="product-cell">
+                                            <div class="product-avatar">
+                                                @product.Name
+                                                    .Substring(0, 1)
+                                                    .ToUpper()
+                                            </div>
+
+                                            <div>
+                                                <strong>
+                                                    @product.Name
+                                                </strong>
+
+                                                <small>
+                                                    ID: @product.ProductId
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        @(product.Category?.Name ?? "None")
+                                    </td>
+
+                                    <td>
+                                        @product.Price.ToString("C")
+                                    </td>
+
+                                    <td>
+                                        @if (product.Stock == null)
+                                        {
+                                            <span class="stock-status stock-empty">
+                                                Not set
+                                            </span>
+                                        }
+                                        else if (
+                                            product.Stock.Quantity <=
+                                            product.Stock.LowStockThreshold)
+                                        {
+                                            <span class="stock-status stock-low">
+                                                @product.Stock.Quantity units
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="stock-status stock-good">
+                                                @product.Stock.Quantity units
+                                            </span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="4"
+                                    class="empty-table">
+                                    No products have been added.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Low stock -->
+    <div class="col-xl-5">
+        <div class="content-card">
+            <div class="content-card-header">
+                <div>
+                    <h2 class="content-card-title">
+                        Low Stock Alert
+                    </h2>
+
+                    <p class="card-subtitle">
+                        Products requiring attention
+                    </p>
+                </div>
+
+                <span class="alert-counter">
+                    @Model.LowStockProducts
+                </span>
+            </div>
+
+            <div class="low-stock-list">
+                @if (Model.LowStockItems.Any())
+                {
+                    foreach (var stock in Model.LowStockItems)
+                    {
+                        var percentage =
+                            stock.LowStockThreshold > 0
+                                ? Math.Min(
+                                    100,
+                                    stock.Quantity * 100 /
+                                    stock.LowStockThreshold)
+                                : 0;
+
+                        <div class="low-stock-item">
+                            <div class="low-stock-information">
+                                <div class="warning-product-icon">
+                                    !
+                                </div>
+
+                                <div>
+                                    <strong>
+                                        @(stock.Product?.Name ?? "Unknown")
+                                    </strong>
+
+                                    <small>
+                                        Threshold:
+                                        @stock.LowStockThreshold units
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="low-stock-quantity">
+                                <strong>@stock.Quantity</strong>
+                                <small>remaining</small>
+                            </div>
+
+                            <div class="stock-progress">
+                                <div class="stock-progress-bar"
+                                     style="width: @percentage%">
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="all-stock-good">
+                        <span>✓</span>
+
+                        <strong>All products have sufficient stock</strong>
+
+                        <small>
+                            There are currently no low-stock alerts.
+                        </small>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        const productNames =
+            @Html.Raw(productNamesJson);
+
+        const stockQuantities =
+            @Html.Raw(stockQuantitiesJson);
+
+        const categoryNames =
+            @Html.Raw(categoryNamesJson);
+
+        const categoryCounts =
+            @Html.Raw(categoryCountsJson);
+
+        let stockChart;
+        let categoryChart;
+
+
+        function getThemeColours() {
+            const styles =
+                getComputedStyle(
+                    document.documentElement
+                );
+
+            return {
+                text:
+                    styles
+                        .getPropertyValue(
+                            "--text-secondary"
+                        )
+                        .trim(),
+
+                border:
+                    styles
+                        .getPropertyValue(
+                            "--border-colour"
+                        )
+                        .trim(),
+
+                surface:
+                    styles
+                        .getPropertyValue(
+                            "--surface-primary"
+                        )
+                        .trim()
+            };
+        }
+
+
+        function createDashboardCharts() {
+            const colours =
+                getThemeColours();
+
+            if (stockChart) {
+                stockChart.destroy();
+            }
+
+            if (categoryChart) {
+                categoryChart.destroy();
+            }
+
+
+            const stockCanvas =
+                document.getElementById(
+                    "stockChart"
+                );
+
+            stockChart = new Chart(
+                stockCanvas,
+                {
+                    type: "bar",
+
+                    data: {
+                        labels: productNames,
+
+                        datasets: [
+                            {
+                                label: "Stock Quantity",
+                                data: stockQuantities,
+                                backgroundColor:
+                                    "rgba(115, 103, 240, 0.75)",
+                                borderColor:
+                                    "#7367f0",
+                                borderWidth: 1,
+                                borderRadius: 7,
+                                maxBarThickness: 45
+                            }
+                        ]
+                    },
+
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+
+                            tooltip: {
+                                backgroundColor:
+                                    "#17182b",
+                                padding: 12,
+                                cornerRadius: 8
+                            }
+                        },
+
+                        scales: {
+                            x: {
+                                grid: {
+                                    display: false
+                                },
+
+                                ticks: {
+                                    color: colours.text,
+                                    font: {
+                                        size: 11
+                                    }
+                                }
+                            },
+
+                            y: {
+                                beginAtZero: true,
+
+                                grid: {
+                                    color: colours.border
+                                },
+
+                                ticks: {
+                                    color: colours.text,
+                                    precision: 0
+                                }
+                            }
+                        }
+                    }
+                }
+            );
+
+
+            const categoryCanvas =
+                document.getElementById(
+                    "categoryChart"
+                );
+
+            categoryChart = new Chart(
+                categoryCanvas,
+                {
+                    type: "doughnut",
+
+                    data: {
+                        labels: categoryNames,
+
+                        datasets: [
+                            {
+                                data: categoryCounts,
+
+                                backgroundColor: [
+                                    "#7367f0",
+                                    "#00cfe8",
+                                    "#28c76f",
+                                    "#ff9f43",
+                                    "#ea5455",
+                                    "#9c8cff",
+                                    "#42a5f5",
+                                    "#ff6f91"
+                                ],
+
+                                borderColor:
+                                    colours.surface,
+
+                                borderWidth: 4,
+                                hoverOffset: 6
+                            }
+                        ]
+                    },
+
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: "67%",
+
+                        plugins: {
+                            legend: {
+                                position: "bottom",
+
+                                labels: {
+                                    color: colours.text,
+                                    padding: 15,
+                                    usePointStyle: true,
+                                    pointStyle: "circle",
+                                    boxWidth: 8,
+                                    font: {
+                                        size: 10
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            );
+        }
+
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            createDashboardCharts
+        );
+
+
+        window.addEventListener(
+            "stockflowThemeChanged",
+            function () {
+                setTimeout(
+                    createDashboardCharts,
+                    100
+                );
+            }
+        );
+    </script>
+}
