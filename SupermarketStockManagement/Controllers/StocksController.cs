@@ -1,95 +1,146 @@
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SupermarketStockManagement.Models;
 using SupermarketStockManagement.Data;
 
-[Route("api/[controller]")]
-[ApiController]
-public class StocksController : ControllerBase
+public class StocksController : Controller
 {
     private readonly ApplicationDbContext _context;
+
     public StocksController(ApplicationDbContext context)
     {
         _context = context;
     }
 
-    // GET: api/Stock
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<Stock>>> GetStock()
+    // GET: STOCKS
+    public async Task<IActionResult> Index()    
     {
-        return await _context.Stocks.ToListAsync();
+        return View(await _context.Stocks.ToListAsync());
     }
 
-    // GET: api/Stock/5
-    [HttpGet("{stockid}")]
-    public async Task<ActionResult<Stock>> GetStock(int stockid)
+    // GET: STOCKS/Details/5
+    public async Task<IActionResult> Details(int? stockid)
     {
-        var stock = await _context.Stocks.FindAsync(stockid);
+        if (stockid == null)
+        {
+            return NotFound();
+        }
 
+        var stock = await _context.Stocks
+            .FirstOrDefaultAsync(m => m.StockId == stockid);
         if (stock == null)
         {
             return NotFound();
         }
 
-        return stock;
+        return View(stock);
     }
 
-    // PUT: api/Stock/5
-    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-    [HttpPut("{stockid}")]
-    public async Task<IActionResult> PutStock(int? stockid, Stock stock)
+    // GET: STOCKS/Create
+    public IActionResult Create()
+    {
+        return View();
+    }
+
+    // POST: STOCKS/Create
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create([Bind("StockId,ProductId,Quantity,LowStockThreshold,Product")] Stock stock)
+    {
+        if (ModelState.IsValid)
+        {
+            _context.Add(stock);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+        return View(stock);
+    }
+
+    // GET: STOCKS/Edit/5
+    public async Task<IActionResult> Edit(int? stockid)
+    {
+        if (stockid == null)
+        {
+            return NotFound();
+        }
+
+        var stock = await _context.Stocks.FindAsync(stockid);
+        if (stock == null)
+        {
+            return NotFound();
+        }
+        return View(stock);
+    }
+
+    // POST: STOCKS/Edit/5
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(int? stockid, [Bind("StockId,ProductId,Quantity,LowStockThreshold,Product")] Stock stock)
     {
         if (stockid != stock.StockId)
         {
-            return BadRequest();
+            return NotFound();
         }
 
-        _context.Entry(stock).State = EntityState.Modified;
-
-        try
+        if (ModelState.IsValid)
         {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!StockExists(stockid))
+            try
             {
-                return NotFound();
+                _context.Update(stock);
+                await _context.SaveChangesAsync();
             }
-            else
+            catch (DbUpdateConcurrencyException)
             {
-                throw;
+                if (!StockExists(stock.StockId))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
             }
+            return RedirectToAction(nameof(Index));
         }
-
-        return NoContent();
+        return View(stock);
     }
 
-    // POST: api/Stock
-    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-    [HttpPost]
-    public async Task<ActionResult<Stock>> PostStock(Stock stock)
+    // GET: STOCKS/Delete/5
+    public async Task<IActionResult> Delete(int? stockid)
     {
-        _context.Stocks.Add(stock);
-        await _context.SaveChangesAsync();
+        if (stockid == null)
+        {
+            return NotFound();
+        }
 
-        return CreatedAtAction("GetStock", new { stockid = stock.StockId }, stock);
-    }
-
-    // DELETE: api/Stock/5
-    [HttpDelete("{stockid}")]
-    public async Task<IActionResult> DeleteStock(int? stockid)
-    {
-        var stock = await _context.Stocks.FindAsync(stockid);
+        var stock = await _context.Stocks
+            .FirstOrDefaultAsync(m => m.StockId == stockid);
         if (stock == null)
         {
             return NotFound();
         }
 
-        _context.Stocks.Remove(stock);
-        await _context.SaveChangesAsync();
+        return View(stock);
+    }
 
-        return NoContent();
+    // POST: STOCKS/Delete/5
+    [HttpPost, ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(int? stockid)
+    {
+        var stock = await _context.Stocks.FindAsync(stockid);
+        if (stock != null)
+        {
+            _context.Stocks.Remove(stock);
+        }
+
+        await _context.SaveChangesAsync();
+        return RedirectToAction(nameof(Index));
     }
 
     private bool StockExists(int? stockid)

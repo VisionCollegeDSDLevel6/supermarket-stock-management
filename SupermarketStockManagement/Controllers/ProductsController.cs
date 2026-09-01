@@ -1,95 +1,146 @@
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SupermarketStockManagement.Models;
 using SupermarketStockManagement.Data;
 
-[Route("api/[controller]")]
-[ApiController]
-public class ProductsController : ControllerBase
+public class ProductsController : Controller
 {
     private readonly ApplicationDbContext _context;
+
     public ProductsController(ApplicationDbContext context)
     {
         _context = context;
     }
 
-    // GET: api/Product
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<Product>>> GetProduct()
+    // GET: PRODUCTS
+    public async Task<IActionResult> Index()    
     {
-        return await _context.Products.ToListAsync();
+        return View(await _context.Products.ToListAsync());
     }
 
-    // GET: api/Product/5
-    [HttpGet("{productid}")]
-    public async Task<ActionResult<Product>> GetProduct(int productid)
+    // GET: PRODUCTS/Details/5
+    public async Task<IActionResult> Details(int? productid)
     {
-        var product = await _context.Products.FindAsync(productid);
+        if (productid == null)
+        {
+            return NotFound();
+        }
 
+        var product = await _context.Products
+            .FirstOrDefaultAsync(m => m.ProductId == productid);
         if (product == null)
         {
             return NotFound();
         }
 
-        return product;
+        return View(product);
     }
 
-    // PUT: api/Product/5
-    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-    [HttpPut("{productid}")]
-    public async Task<IActionResult> PutProduct(int? productid, Product product)
+    // GET: PRODUCTS/Create
+    public IActionResult Create()
+    {
+        return View();
+    }
+
+    // POST: PRODUCTS/Create
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create([Bind("ProductId,Name,Description,Price,ImageUrl,CategoryId,Category,Stock,StockHistories")] Product product)
+    {
+        if (ModelState.IsValid)
+        {
+            _context.Add(product);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+        return View(product);
+    }
+
+    // GET: PRODUCTS/Edit/5
+    public async Task<IActionResult> Edit(int? productid)
+    {
+        if (productid == null)
+        {
+            return NotFound();
+        }
+
+        var product = await _context.Products.FindAsync(productid);
+        if (product == null)
+        {
+            return NotFound();
+        }
+        return View(product);
+    }
+
+    // POST: PRODUCTS/Edit/5
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(int? productid, [Bind("ProductId,Name,Description,Price,ImageUrl,CategoryId,Category,Stock,StockHistories")] Product product)
     {
         if (productid != product.ProductId)
         {
-            return BadRequest();
+            return NotFound();
         }
 
-        _context.Entry(product).State = EntityState.Modified;
-
-        try
+        if (ModelState.IsValid)
         {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!ProductExists(productid))
+            try
             {
-                return NotFound();
+                _context.Update(product);
+                await _context.SaveChangesAsync();
             }
-            else
+            catch (DbUpdateConcurrencyException)
             {
-                throw;
+                if (!ProductExists(product.ProductId))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
             }
+            return RedirectToAction(nameof(Index));
         }
-
-        return NoContent();
+        return View(product);
     }
 
-    // POST: api/Product
-    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-    [HttpPost]
-    public async Task<ActionResult<Product>> PostProduct(Product product)
+    // GET: PRODUCTS/Delete/5
+    public async Task<IActionResult> Delete(int? productid)
     {
-        _context.Products.Add(product);
-        await _context.SaveChangesAsync();
+        if (productid == null)
+        {
+            return NotFound();
+        }
 
-        return CreatedAtAction("GetProduct", new { productid = product.ProductId }, product);
-    }
-
-    // DELETE: api/Product/5
-    [HttpDelete("{productid}")]
-    public async Task<IActionResult> DeleteProduct(int? productid)
-    {
-        var product = await _context.Products.FindAsync(productid);
+        var product = await _context.Products
+            .FirstOrDefaultAsync(m => m.ProductId == productid);
         if (product == null)
         {
             return NotFound();
         }
 
-        _context.Products.Remove(product);
-        await _context.SaveChangesAsync();
+        return View(product);
+    }
 
-        return NoContent();
+    // POST: PRODUCTS/Delete/5
+    [HttpPost, ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(int? productid)
+    {
+        var product = await _context.Products.FindAsync(productid);
+        if (product != null)
+        {
+            _context.Products.Remove(product);
+        }
+
+        await _context.SaveChangesAsync();
+        return RedirectToAction(nameof(Index));
     }
 
     private bool ProductExists(int? productid)
