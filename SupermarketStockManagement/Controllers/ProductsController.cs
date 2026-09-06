@@ -1,5 +1,6 @@
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SupermarketStockManagement.Models;
 using SupermarketStockManagement.Data;
@@ -14,9 +15,66 @@ public class ProductsController : Controller
     }
 
     // GET: PRODUCTS
-    public async Task<IActionResult> Index()    
+    // Supports search/filter: ?searchTerm=&categoryId=&minPrice=&maxPrice=&sortBy=&sortOrder=
+    public async Task<IActionResult> Index(
+        string? searchTerm = null,
+        int? categoryId = null,
+        decimal? minPrice = null,
+        decimal? maxPrice = null,
+        string? sortBy = null,
+        string sortOrder = "asc")
     {
-        return View(await _context.Products.ToListAsync());
+        var query = _context.Products
+            .Include(p => p.Category)
+            .Include(p => p.Stock)
+            .AsQueryable();
+
+        // Search by name or description
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var term = searchTerm.ToLower();
+            query = query.Where(p =>
+                p.Name.ToLower().Contains(term) ||
+                (p.Description != null && p.Description.ToLower().Contains(term)));
+        }
+
+        // Filter by category
+        if (categoryId.HasValue)
+        {
+            query = query.Where(p => p.CategoryId == categoryId.Value);
+        }
+
+        // Filter by price range
+        if (minPrice.HasValue)
+        {
+            query = query.Where(p => p.Price >= minPrice.Value);
+        }
+        if (maxPrice.HasValue)
+        {
+            query = query.Where(p => p.Price <= maxPrice.Value);
+        }
+
+        // Sorting
+        query = (sortBy?.ToLower()) switch
+        {
+            "name" => sortOrder == "desc" ? query.OrderByDescending(p => p.Name) : query.OrderBy(p => p.Name),
+            "price" => sortOrder == "desc" ? query.OrderByDescending(p => p.Price) : query.OrderBy(p => p.Price),
+            "category" => sortOrder == "desc" ? query.OrderByDescending(p => p.Category!.Name) : query.OrderBy(p => p.Category!.Name),
+            "stock" => sortOrder == "desc" ? query.OrderByDescending(p => p.Stock!.Quantity) : query.OrderBy(p => p.Stock!.Quantity),
+            _ => query.OrderBy(p => p.Name)
+        };
+
+        // Pass filter values to view for form persistence
+        ViewBag.SearchTerm = searchTerm;
+        ViewBag.SelectedCategoryId = categoryId;
+        ViewBag.MinPrice = minPrice;
+        ViewBag.MaxPrice = maxPrice;
+        ViewBag.SortBy = sortBy;
+        ViewBag.SortOrder = sortOrder;
+        ViewBag.Categories = new SelectList(
+            await _context.Categories.ToListAsync(), "CategoryId", "Name", categoryId);
+
+        return View(await query.ToListAsync());
     }
 
     // GET: PRODUCTS/Details/5
@@ -40,6 +98,8 @@ public class ProductsController : Controller
     // GET: PRODUCTS/Create
     public IActionResult Create()
     {
+        ViewBag.CategoryId = new SelectList(
+            _context.Categories.ToList(), "CategoryId", "Name");
         return View();
     }
 
@@ -48,14 +108,27 @@ public class ProductsController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("ProductId,Name,Description,Price,ImageUrl,CategoryId,Category,Stock,StockHistories")] Product product)
+    public async Task<IActionResult> Create([Bind("ProductId,Name,Description,Price,ImageUrl,CategoryId")] Product product)
     {
         if (ModelState.IsValid)
         {
             _context.Add(product);
             await _context.SaveChangesAsync();
+
+            // Auto-create a stock entry for the new product
+            var stock = new Stock
+            {
+                ProductId = product.ProductId,
+                Quantity = 0,
+                LowStockThreshold = 5
+            };
+            _context.Add(stock);
+            await _context.SaveChangesAsync();
+
             return RedirectToAction(nameof(Index));
         }
+        ViewBag.CategoryId = new SelectList(
+            _context.Categories.ToList(), "CategoryId", "Name", product.CategoryId);
         return View(product);
     }
 
@@ -72,6 +145,8 @@ public class ProductsController : Controller
         {
             return NotFound();
         }
+        ViewBag.CategoryId = new SelectList(
+            _context.Categories.ToList(), "CategoryId", "Name", product.CategoryId);
         return View(product);
     }
 
@@ -80,7 +155,7 @@ public class ProductsController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? productid, [Bind("ProductId,Name,Description,Price,ImageUrl,CategoryId,Category,Stock,StockHistories")] Product product)
+    public async Task<IActionResult> Edit(int? productid, [Bind("ProductId,Name,Description,Price,ImageUrl,CategoryId")] Product product)
     {
         if (productid != product.ProductId)
         {
@@ -107,6 +182,8 @@ public class ProductsController : Controller
             }
             return RedirectToAction(nameof(Index));
         }
+        ViewBag.CategoryId = new SelectList(
+            _context.Categories.ToList(), "CategoryId", "Name", product.CategoryId);
         return View(product);
     }
 
