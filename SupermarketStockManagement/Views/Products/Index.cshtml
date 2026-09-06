@@ -1,77 +1,208 @@
 @model IEnumerable<SupermarketStockManagement.Models.Product>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Products";
 }
 
-<h1>Index</h1>
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Products</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Price)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ImageUrl)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CategoryId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Category)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Stock)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.StockHistories)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(model => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.Price)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.ImageUrl)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.CategoryId)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.Category)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.Stock)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.StockHistories)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.ProductId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ProductId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ProductId">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+        <p class="page-subtitle">
+            Manage supermarket products, prices and inventory information.
+        </p>
+    </div>
+
+    <a asp-action="Create"
+       class="btn btn-primary">
+        + Add Product
+    </a>
+</div>
+
+
+<!-- Products Table -->
+<div class="content-card">
+
+    <div class="content-card-header">
+        <div>
+            <h2 class="content-card-title">
+                Product List
+            </h2>
+
+            <p class="card-subtitle">
+                @Model.Count() products registered
+            </p>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Description</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @if (Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <!-- Product -->
+                            <td>
+                                <div class="product-cell">
+                                    <div class="product-avatar">
+                                        @item.Name.Substring(0, 1).ToUpper()
+                                    </div>
+
+                                    <div>
+                                        <strong>@item.Name</strong>
+
+                                        <small>
+                                            Product ID: @item.ProductId
+                                        </small>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <!-- Description -->
+                            <td>
+                                @if (string.IsNullOrWhiteSpace(item.Description))
+                                {
+                                    <span class="text-muted">
+                                        No description
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span>
+                                        @item.Description
+                                    </span>
+                                }
+                            </td>
+
+                            <!-- Category -->
+                            <td>
+                                @if (item.Category != null)
+                                {
+                                    <span class="category-badge">
+                                        @item.Category.Name
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="stock-status stock-empty">
+                                        Not assigned
+                                    </span>
+                                }
+                            </td>
+
+                            <!-- Price -->
+                            <td>
+                                <strong class="product-price">
+                                    @item.Price.ToString("C")
+                                </strong>
+                            </td>
+
+                            <!-- Stock -->
+                            <td>
+                                @if (item.Stock == null)
+                                {
+                                    <span class="stock-status stock-empty">
+                                        Not set
+                                    </span>
+                                }
+                                else if (
+                                    item.Stock.Quantity <=
+                                    item.Stock.LowStockThreshold)
+                                {
+                                    <span class="stock-status stock-low">
+                                        @item.Stock.Quantity units
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="stock-status stock-good">
+                                        @item.Stock.Quantity units
+                                    </span>
+                                }
+                            </td>
+
+                            <!-- Actions -->
+                            <td>
+                                <div class="table-actions">
+                                    <a asp-action="Details"
+                                       asp-route-id="@item.ProductId"
+                                       class="action-button details-action"
+                                       title="View details">
+                                        View
+                                    </a>
+
+                                    <a asp-action="Edit"
+                                       asp-route-id="@item.ProductId"
+                                       class="action-button edit-action"
+                                       title="Edit product">
+                                        Edit
+                                    </a>
+
+                                    <a asp-action="Delete"
+                                       asp-route-id="@item.ProductId"
+                                       class="action-button delete-action"
+                                       title="Delete product">
+                                        Delete
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6"
+                            class="empty-products">
+
+                            <div class="empty-products-icon">
+                                <svg viewBox="0 0 24 24"
+                                     width="32"
+                                     height="32"
+                                     fill="none">
+
+                                    <path d="M4 7L12 3L20 7L12 11L4 7Z"
+                                          stroke="currentColor"
+                                          stroke-width="1.8" />
+
+                                    <path d="M4 7V17L12 21L20 17V7"
+                                          stroke="currentColor"
+                                          stroke-width="1.8" />
+
+                                    <path d="M12 11V21"
+                                          stroke="currentColor"
+                                          stroke-width="1.8" />
+                                </svg>
+                            </div>
+
+                            <h3>No products found</h3>
+
+                            <p>
+                                Add your first product to begin managing inventory.
+                            </p>
+
+                            <a asp-action="Create"
+                               class="btn btn-primary">
+                                + Add First Product
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

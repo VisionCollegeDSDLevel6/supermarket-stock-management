@@ -1,8 +1,7 @@
-
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SupermarketStockManagement.Models;
 using SupermarketStockManagement.Data;
+using SupermarketStockManagement.Models;
 
 public class CategoriesController : Controller
 {
@@ -13,22 +12,29 @@ public class CategoriesController : Controller
         _context = context;
     }
 
-    // GET: CATEGORYS
-    public async Task<IActionResult> Index()    
+    public async Task<IActionResult> Index()
     {
-        return View(await _context.Categories.ToListAsync());
+        var categories = await _context.Categories
+            .Include(category => category.Products)
+            .OrderBy(category => category.Name)
+            .ToListAsync();
+
+        return View(categories);
     }
 
-    // GET: CATEGORYS/Details/5
-    public async Task<IActionResult> Details(int? categoryid)
+    public async Task<IActionResult> Details(int? id)
     {
-        if (categoryid == null)
+        if (id == null)
         {
             return NotFound();
         }
 
         var category = await _context.Categories
-            .FirstOrDefaultAsync(m => m.CategoryId == categoryid);
+            .Include(category => category.Products)
+            .ThenInclude(product => product.Stock)
+            .FirstOrDefaultAsync(category =>
+                category.CategoryId == id);
+
         if (category == null)
         {
             return NotFound();
@@ -37,54 +43,82 @@ public class CategoriesController : Controller
         return View(category);
     }
 
-    // GET: CATEGORYS/Create
     public IActionResult Create()
     {
         return View();
     }
 
-    // POST: CATEGORYS/Create
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("CategoryId,Name,Description,Products")] Category category)
+    public async Task<IActionResult> Create(
+        [Bind("CategoryId,Name,Description")]
+        Category category)
     {
+        var duplicateName = await _context.Categories
+            .AnyAsync(existing =>
+                existing.Name.ToLower() ==
+                category.Name.ToLower());
+
+        if (duplicateName)
+        {
+            ModelState.AddModelError(
+                "Name",
+                "A category with this name already exists."
+            );
+        }
+
         if (ModelState.IsValid)
         {
             _context.Add(category);
             await _context.SaveChangesAsync();
+
             return RedirectToAction(nameof(Index));
         }
+
         return View(category);
     }
 
-    // GET: CATEGORYS/Edit/5
-    public async Task<IActionResult> Edit(int? categoryid)
+    public async Task<IActionResult> Edit(int? id)
     {
-        if (categoryid == null)
+        if (id == null)
         {
             return NotFound();
         }
 
-        var category = await _context.Categories.FindAsync(categoryid);
+        var category = await _context.Categories.FindAsync(id);
+
         if (category == null)
         {
             return NotFound();
         }
+
         return View(category);
     }
 
-    // POST: CATEGORYS/Edit/5
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? categoryid, [Bind("CategoryId,Name,Description,Products")] Category category)
+    public async Task<IActionResult> Edit(
+        int id,
+        [Bind("CategoryId,Name,Description")]
+        Category category)
     {
-        if (categoryid != category.CategoryId)
+        if (id != category.CategoryId)
         {
             return NotFound();
+        }
+
+        var duplicateName = await _context.Categories
+            .AnyAsync(existing =>
+                existing.CategoryId != category.CategoryId &&
+                existing.Name.ToLower() ==
+                category.Name.ToLower());
+
+        if (duplicateName)
+        {
+            ModelState.AddModelError(
+                "Name",
+                "A category with this name already exists."
+            );
         }
 
         if (ModelState.IsValid)
@@ -100,26 +134,28 @@ public class CategoriesController : Controller
                 {
                     return NotFound();
                 }
-                else
-                {
-                    throw;
-                }
+
+                throw;
             }
+
             return RedirectToAction(nameof(Index));
         }
+
         return View(category);
     }
 
-    // GET: CATEGORYS/Delete/5
-    public async Task<IActionResult> Delete(int? categoryid)
+    public async Task<IActionResult> Delete(int? id)
     {
-        if (categoryid == null)
+        if (id == null)
         {
             return NotFound();
         }
 
         var category = await _context.Categories
-            .FirstOrDefaultAsync(m => m.CategoryId == categoryid);
+            .Include(category => category.Products)
+            .FirstOrDefaultAsync(category =>
+                category.CategoryId == id);
+
         if (category == null)
         {
             return NotFound();
@@ -128,23 +164,40 @@ public class CategoriesController : Controller
         return View(category);
     }
 
-    // POST: CATEGORYS/Delete/5
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int? categoryid)
+    public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var category = await _context.Categories.FindAsync(categoryid);
-        if (category != null)
+        var category = await _context.Categories
+            .Include(category => category.Products)
+            .FirstOrDefaultAsync(category =>
+                category.CategoryId == id);
+
+        if (category == null)
         {
-            _context.Categories.Remove(category);
+            return NotFound();
         }
 
+        if (category.Products.Any())
+        {
+            TempData["CategoryDeleteError"] =
+                "This category cannot be deleted because it still contains products.";
+
+            return RedirectToAction(
+                nameof(Delete),
+                new { id }
+            );
+        }
+
+        _context.Categories.Remove(category);
         await _context.SaveChangesAsync();
+
         return RedirectToAction(nameof(Index));
     }
 
-    private bool CategoryExists(int? categoryid)
+    private bool CategoryExists(int id)
     {
-        return _context.Categories.Any(e => e.CategoryId == categoryid);
+        return _context.Categories.Any(category =>
+            category.CategoryId == id);
     }
 }

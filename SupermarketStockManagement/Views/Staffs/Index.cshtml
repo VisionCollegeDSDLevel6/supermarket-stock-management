@@ -1,47 +1,110 @@
 @model IEnumerable<SupermarketStockManagement.Models.Staff>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Staff";
 }
 
-<h1>Index</h1>
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Staff</h1>
+        <p class="page-subtitle">
+            Manage supermarket staff members and their roles.
+        </p>
+    </div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Email)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Role)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(model => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.Role)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.StaffId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.StaffId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.StaffId">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+    <a asp-action="Create" class="btn btn-primary">
+        + Add Staff
+    </a>
+</div>
+
+<div class="content-card">
+    <div class="content-card-header">
+        <div>
+            <h2 class="content-card-title">Staff List</h2>
+            <p class="card-subtitle">
+                @Model.Count() staff members registered
+            </p>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Staff Member</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @if (Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="product-cell">
+                                    <div class="staff-avatar">
+                                        @item.Name.Substring(0, 1).ToUpper()
+                                    </div>
+
+                                    <div>
+                                        <strong>@item.Name</strong>
+                                        <small>Staff ID: @item.StaffId</small>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>@item.Email</td>
+
+                            <td>
+                                <span class="role-badge">
+                                    @item.Role
+                                </span>
+                            </td>
+
+                            <td>
+                                <div class="table-actions">
+                                    <a asp-action="Details"
+                                       asp-route-id="@item.StaffId"
+                                       class="action-button details-action">
+                                        View
+                                    </a>
+
+                                    <a asp-action="Edit"
+                                       asp-route-id="@item.StaffId"
+                                       class="action-button edit-action">
+                                        Edit
+                                    </a>
+
+                                    <a asp-action="Delete"
+                                       asp-route-id="@item.StaffId"
+                                       class="action-button delete-action">
+                                        Delete
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4" class="empty-products">
+                            <div class="empty-products-icon">👤</div>
+                            <h3>No staff members found</h3>
+                            <p>Add the first staff member to the system.</p>
+
+                            <a asp-action="Create"
+                               class="btn btn-primary">
+                                + Add First Staff Member
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

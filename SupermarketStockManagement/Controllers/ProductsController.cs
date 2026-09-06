@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SupermarketStockManagement.Models;
 using SupermarketStockManagement.Data;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 public class ProductsController : Controller
 {
@@ -14,21 +15,32 @@ public class ProductsController : Controller
     }
 
     // GET: PRODUCTS
-    public async Task<IActionResult> Index()    
+  
+    public async Task<IActionResult> Index()
     {
-        return View(await _context.Products.ToListAsync());
+        var products = await _context.Products
+            .Include(product => product.Category)
+            .Include(product => product.Stock)
+            .ToListAsync();
+
+        return View(products);
     }
 
     // GET: PRODUCTS/Details/5
-    public async Task<IActionResult> Details(int? productid)
+   
+    public async Task<IActionResult> Details(int? id)
     {
-        if (productid == null)
+        if (id == null)
         {
             return NotFound();
         }
 
         var product = await _context.Products
-            .FirstOrDefaultAsync(m => m.ProductId == productid);
+            .Include(product => product.Category)
+            .Include(product => product.Stock)
+            .FirstOrDefaultAsync(product =>
+                product.ProductId == id);
+
         if (product == null)
         {
             return NotFound();
@@ -38,8 +50,15 @@ public class ProductsController : Controller
     }
 
     // GET: PRODUCTS/Create
+    // GET: Products/Create
     public IActionResult Create()
     {
+        ViewData["CategoryId"] = new SelectList(
+            _context.Categories,
+            "CategoryId",
+            "Name"
+        );
+
         return View();
     }
 
@@ -60,18 +79,27 @@ public class ProductsController : Controller
     }
 
     // GET: PRODUCTS/Edit/5
-    public async Task<IActionResult> Edit(int? productid)
+    public async Task<IActionResult> Edit(int? id)
     {
-        if (productid == null)
+        if (id == null)
         {
             return NotFound();
         }
 
-        var product = await _context.Products.FindAsync(productid);
+        var product = await _context.Products.FindAsync(id);
+
         if (product == null)
         {
             return NotFound();
         }
+
+        ViewData["CategoryId"] = new SelectList(
+            _context.Categories,
+            "CategoryId",
+            "Name",
+            product.CategoryId
+        );
+
         return View(product);
     }
 
@@ -110,16 +138,20 @@ public class ProductsController : Controller
         return View(product);
     }
 
-    // GET: PRODUCTS/Delete/5
-    public async Task<IActionResult> Delete(int? productid)
+    // GET: Products/Delete/5
+    public async Task<IActionResult> Delete(int? id)
     {
-        if (productid == null)
+        if (id == null)
         {
             return NotFound();
         }
 
         var product = await _context.Products
-            .FirstOrDefaultAsync(m => m.ProductId == productid);
+            .Include(product => product.Category)
+            .Include(product => product.Stock)
+            .FirstOrDefaultAsync(product =>
+                product.ProductId == id);
+
         if (product == null)
         {
             return NotFound();
@@ -128,23 +160,27 @@ public class ProductsController : Controller
         return View(product);
     }
 
-    // POST: PRODUCTS/Delete/5
+
+    // POST: Products/Delete/5
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int? productid)
+    public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var product = await _context.Products.FindAsync(productid);
+        var product = await _context.Products
+            .FindAsync(id);
+
         if (product != null)
         {
             _context.Products.Remove(product);
+            await _context.SaveChangesAsync();
         }
 
-        await _context.SaveChangesAsync();
         return RedirectToAction(nameof(Index));
     }
-
-    private bool ProductExists(int? productid)
+    private bool ProductExists(int id)
     {
-        return _context.Products.Any(e => e.ProductId == productid);
+        return _context.Products.Any(
+            product => product.ProductId == id
+        );
     }
 }

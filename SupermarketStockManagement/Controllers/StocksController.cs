@@ -1,8 +1,8 @@
-
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using SupermarketStockManagement.Models;
 using SupermarketStockManagement.Data;
+using SupermarketStockManagement.Models;
 
 public class StocksController : Controller
 {
@@ -13,22 +13,28 @@ public class StocksController : Controller
         _context = context;
     }
 
-    // GET: STOCKS
-    public async Task<IActionResult> Index()    
+    public async Task<IActionResult> Index()
     {
-        return View(await _context.Stocks.ToListAsync());
+        var stocks = await _context.Stocks
+            .Include(stock => stock.Product)
+            .OrderBy(stock => stock.Product!.Name)
+            .ToListAsync();
+
+        return View(stocks);
     }
 
-    // GET: STOCKS/Details/5
-    public async Task<IActionResult> Details(int? stockid)
+    public async Task<IActionResult> Details(int? id)
     {
-        if (stockid == null)
+        if (id == null)
         {
             return NotFound();
         }
 
         var stock = await _context.Stocks
-            .FirstOrDefaultAsync(m => m.StockId == stockid);
+            .Include(stock => stock.Product)
+            .FirstOrDefaultAsync(stock =>
+                stock.StockId == id);
+
         if (stock == null)
         {
             return NotFound();
@@ -37,54 +43,119 @@ public class StocksController : Controller
         return View(stock);
     }
 
-    // GET: STOCKS/Create
-    public IActionResult Create()
+    public async Task<IActionResult> Create()
     {
+        await LoadProducts();
         return View();
     }
 
-    // POST: STOCKS/Create
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("StockId,ProductId,Quantity,LowStockThreshold,Product")] Stock stock)
+    public async Task<IActionResult> Create(
+        [Bind("StockId,ProductId,Quantity,LowStockThreshold")]
+        Stock stock)
     {
+        var stockAlreadyExists = await _context.Stocks
+            .AnyAsync(existing =>
+                existing.ProductId == stock.ProductId);
+
+        if (stockAlreadyExists)
+        {
+            ModelState.AddModelError(
+                "ProductId",
+                "This product already has a stock record."
+            );
+        }
+
+        if (stock.Quantity < 0)
+        {
+            ModelState.AddModelError(
+                "Quantity",
+                "Quantity cannot be negative."
+            );
+        }
+
+        if (stock.LowStockThreshold < 0)
+        {
+            ModelState.AddModelError(
+                "LowStockThreshold",
+                "Low-stock threshold cannot be negative."
+            );
+        }
+
         if (ModelState.IsValid)
         {
             _context.Add(stock);
             await _context.SaveChangesAsync();
+
             return RedirectToAction(nameof(Index));
         }
+
+        await LoadProducts(stock.ProductId);
         return View(stock);
     }
 
-    // GET: STOCKS/Edit/5
-    public async Task<IActionResult> Edit(int? stockid)
+    public async Task<IActionResult> Edit(int? id)
     {
-        if (stockid == null)
+        if (id == null)
         {
             return NotFound();
         }
 
-        var stock = await _context.Stocks.FindAsync(stockid);
+        var stock = await _context.Stocks.FindAsync(id);
+
         if (stock == null)
         {
             return NotFound();
         }
+
+        await LoadProducts(
+            stock.ProductId,
+            stock.StockId
+        );
+
         return View(stock);
     }
 
-    // POST: STOCKS/Edit/5
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? stockid, [Bind("StockId,ProductId,Quantity,LowStockThreshold,Product")] Stock stock)
+    public async Task<IActionResult> Edit(
+        int id,
+        [Bind("StockId,ProductId,Quantity,LowStockThreshold")]
+        Stock stock)
     {
-        if (stockid != stock.StockId)
+        if (id != stock.StockId)
         {
             return NotFound();
+        }
+
+        var productUsedByAnotherStock =
+            await _context.Stocks.AnyAsync(existing =>
+                existing.ProductId == stock.ProductId &&
+                existing.StockId != stock.StockId);
+
+        if (productUsedByAnotherStock)
+        {
+            ModelState.AddModelError(
+                "ProductId",
+                "This product already has another stock record."
+            );
+        }
+
+        if (stock.Quantity < 0)
+        {
+            ModelState.AddModelError(
+                "Quantity",
+                "Quantity cannot be negative."
+            );
+        }
+
+        if (stock.LowStockThreshold < 0)
+        {
+            ModelState.AddModelError(
+                "LowStockThreshold",
+                "Low-stock threshold cannot be negative."
+            );
         }
 
         if (ModelState.IsValid)
@@ -100,26 +171,33 @@ public class StocksController : Controller
                 {
                     return NotFound();
                 }
-                else
-                {
-                    throw;
-                }
+
+                throw;
             }
+
             return RedirectToAction(nameof(Index));
         }
+
+        await LoadProducts(
+            stock.ProductId,
+            stock.StockId
+        );
+
         return View(stock);
     }
 
-    // GET: STOCKS/Delete/5
-    public async Task<IActionResult> Delete(int? stockid)
+    public async Task<IActionResult> Delete(int? id)
     {
-        if (stockid == null)
+        if (id == null)
         {
             return NotFound();
         }
 
         var stock = await _context.Stocks
-            .FirstOrDefaultAsync(m => m.StockId == stockid);
+            .Include(stock => stock.Product)
+            .FirstOrDefaultAsync(stock =>
+                stock.StockId == id);
+
         if (stock == null)
         {
             return NotFound();
@@ -128,23 +206,46 @@ public class StocksController : Controller
         return View(stock);
     }
 
-    // POST: STOCKS/Delete/5
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int? stockid)
+    public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var stock = await _context.Stocks.FindAsync(stockid);
+        var stock = await _context.Stocks.FindAsync(id);
+
         if (stock != null)
         {
             _context.Stocks.Remove(stock);
+            await _context.SaveChangesAsync();
         }
 
-        await _context.SaveChangesAsync();
         return RedirectToAction(nameof(Index));
     }
 
-    private bool StockExists(int? stockid)
+    private async Task LoadProducts(
+        int? selectedProductId = null,
+        int? currentStockId = null)
     {
-        return _context.Stocks.Any(e => e.StockId == stockid);
+        var products = await _context.Products
+            .Where(product =>
+                !_context.Stocks.Any(stock =>
+                    stock.ProductId == product.ProductId) ||
+                _context.Stocks.Any(stock =>
+                    stock.StockId == currentStockId &&
+                    stock.ProductId == product.ProductId))
+            .OrderBy(product => product.Name)
+            .ToListAsync();
+
+        ViewData["ProductId"] = new SelectList(
+            products,
+            "ProductId",
+            "Name",
+            selectedProductId
+        );
+    }
+
+    private bool StockExists(int id)
+    {
+        return _context.Stocks.Any(stock =>
+            stock.StockId == id);
     }
 }

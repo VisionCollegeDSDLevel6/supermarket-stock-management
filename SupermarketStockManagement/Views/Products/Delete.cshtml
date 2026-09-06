@@ -1,82 +1,146 @@
 @model SupermarketStockManagement.Models.Product
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Delete Product";
 }
 
-<h1>Delete</h1>
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Delete Product</h1>
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>SupermarketStockManagement.Models.Product</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-    </dl>
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-    </dl>
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Price)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Price)
-        </dd>
-    </dl>
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ImageUrl)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ImageUrl)
-        </dd>
-    </dl>
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CategoryId)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CategoryId)
-        </dd>
-    </dl>
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Category)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Category)
-        </dd>
-    </dl>
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Stock)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Stock)
-        </dd>
-    </dl>
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.StockHistories)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.StockHistories)
-        </dd>
-    </dl>
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="ProductId" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
+        <p class="page-subtitle">
+            Permanently remove this product from inventory.
+        </p>
+    </div>
+
+    <a asp-action="Index"
+       class="btn btn-secondary">
+        ← Back to Products
+    </a>
+</div>
+
+
+<div class="row justify-content-center">
+    <div class="col-xl-8">
+
+        <div class="content-card delete-card">
+
+            <div class="delete-warning-header">
+                <div class="delete-warning-icon">
+                    <svg viewBox="0 0 24 24"
+                         width="30"
+                         height="30"
+                         fill="none">
+
+                        <path d="M12 3L22 20H2L12 3Z"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linejoin="round" />
+
+                        <path d="M12 9V14"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linecap="round" />
+
+                        <circle cx="12"
+                                cy="17"
+                                r="1"
+                                fill="currentColor" />
+                    </svg>
+                </div>
+
+                <div>
+                    <h2>Confirm Product Deletion</h2>
+
+                    <p>
+                        This action cannot be undone.
+                    </p>
+                </div>
+            </div>
+
+
+            <div class="content-card-body">
+
+                <div class="delete-message">
+                    Are you sure you want to delete
+                    <strong>@Model.Name</strong>?
+                </div>
+
+
+                <div class="delete-product-summary">
+
+                    <div class="product-details-avatar">
+                        @Model.Name.Substring(0, 1).ToUpper()
+                    </div>
+
+                    <div class="delete-product-information">
+                        <h3>@Model.Name</h3>
+
+                        <p>
+                            Product ID: @Model.ProductId
+                        </p>
+                    </div>
+
+                    <div class="delete-product-price">
+                        @Model.Price.ToString("C")
+                    </div>
+                </div>
+
+
+                <div class="details-grid delete-details-grid">
+
+                    <div class="details-item">
+                        <span class="details-label">
+                            Category
+                        </span>
+
+                        <div class="details-value">
+                            @(Model.Category?.Name ?? "Not assigned")
+                        </div>
+                    </div>
+
+
+                    <div class="details-item">
+                        <span class="details-label">
+                            Current Stock
+                        </span>
+
+                        <div class="details-value">
+                            @(Model.Stock?.Quantity.ToString() ?? "Not set")
+                        </div>
+                    </div>
+                </div>
+
+
+                @if (Model.Stock != null)
+                {
+                    <div class="delete-related-warning">
+                        This product has an associated Stock record.
+                        Deleting the product may also remove its stock data.
+                    </div>
+                }
+            </div>
+
+
+            <form asp-action="Delete"
+                  asp-route-id="@Model.ProductId"
+                  method="post">
+
+                <input type="hidden"
+                       asp-for="ProductId" />
+
+                <div class="form-footer">
+                    <a asp-action="Index"
+                       class="btn btn-secondary">
+                        Cancel
+                    </a>
+
+                    <button type="submit"
+                            class="btn btn-danger">
+                        Yes, Delete Product
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>

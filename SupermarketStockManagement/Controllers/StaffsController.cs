@@ -1,8 +1,7 @@
-
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SupermarketStockManagement.Models;
 using SupermarketStockManagement.Data;
+using SupermarketStockManagement.Models;
 
 public class StaffsController : Controller
 {
@@ -13,22 +12,26 @@ public class StaffsController : Controller
         _context = context;
     }
 
-    // GET: STAFFS
-    public async Task<IActionResult> Index()    
+    public async Task<IActionResult> Index()
     {
-        return View(await _context.Staff.ToListAsync());
+        return View(
+            await _context.Staff
+                .OrderBy(staff => staff.Name)
+                .ToListAsync()
+        );
     }
 
-    // GET: STAFFS/Details/5
-    public async Task<IActionResult> Details(int? staffid)
+    public async Task<IActionResult> Details(int? id)
     {
-        if (staffid == null)
+        if (id == null)
         {
             return NotFound();
         }
 
         var staff = await _context.Staff
-            .FirstOrDefaultAsync(m => m.StaffId == staffid);
+            .FirstOrDefaultAsync(staff =>
+                staff.StaffId == id);
+
         if (staff == null)
         {
             return NotFound();
@@ -37,52 +40,51 @@ public class StaffsController : Controller
         return View(staff);
     }
 
-    // GET: STAFFS/Create
     public IActionResult Create()
     {
         return View();
     }
 
-    // POST: STAFFS/Create
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("StaffId,Name,Email,Role")] Staff staff)
+    public async Task<IActionResult> Create(
+        [Bind("StaffId,Name,Email,Role")] Staff staff)
     {
         if (ModelState.IsValid)
         {
             _context.Add(staff);
             await _context.SaveChangesAsync();
+
             return RedirectToAction(nameof(Index));
         }
+
         return View(staff);
     }
 
-    // GET: STAFFS/Edit/5
-    public async Task<IActionResult> Edit(int? staffid)
+    public async Task<IActionResult> Edit(int? id)
     {
-        if (staffid == null)
+        if (id == null)
         {
             return NotFound();
         }
 
-        var staff = await _context.Staff.FindAsync(staffid);
+        var staff = await _context.Staff.FindAsync(id);
+
         if (staff == null)
         {
             return NotFound();
         }
+
         return View(staff);
     }
 
-    // POST: STAFFS/Edit/5
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? staffid, [Bind("StaffId,Name,Email,Role")] Staff staff)
+    public async Task<IActionResult> Edit(
+        int id,
+        [Bind("StaffId,Name,Email,Role")] Staff staff)
     {
-        if (staffid != staff.StaffId)
+        if (id != staff.StaffId)
         {
             return NotFound();
         }
@@ -100,26 +102,27 @@ public class StaffsController : Controller
                 {
                     return NotFound();
                 }
-                else
-                {
-                    throw;
-                }
+
+                throw;
             }
+
             return RedirectToAction(nameof(Index));
         }
+
         return View(staff);
     }
 
-    // GET: STAFFS/Delete/5
-    public async Task<IActionResult> Delete(int? staffid)
+    public async Task<IActionResult> Delete(int? id)
     {
-        if (staffid == null)
+        if (id == null)
         {
             return NotFound();
         }
 
         var staff = await _context.Staff
-            .FirstOrDefaultAsync(m => m.StaffId == staffid);
+            .FirstOrDefaultAsync(staff =>
+                staff.StaffId == id);
+
         if (staff == null)
         {
             return NotFound();
@@ -128,23 +131,24 @@ public class StaffsController : Controller
         return View(staff);
     }
 
-    // POST: STAFFS/Delete/5
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int? staffid)
+    public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var staff = await _context.Staff.FindAsync(staffid);
+        var staff = await _context.Staff.FindAsync(id);
+
         if (staff != null)
         {
             _context.Staff.Remove(staff);
+            await _context.SaveChangesAsync();
         }
 
-        await _context.SaveChangesAsync();
         return RedirectToAction(nameof(Index));
     }
 
-    private bool StaffExists(int? staffid)
+    private bool StaffExists(int id)
     {
-        return _context.Staff.Any(e => e.StaffId == staffid);
+        return _context.Staff.Any(staff =>
+            staff.StaffId == id);
     }
 }

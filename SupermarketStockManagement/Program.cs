@@ -1,7 +1,11 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SupermarketStockManagement.Data;
+using System.Globalization;
+var cultureInfo = new CultureInfo("en-NZ");
 
+CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.

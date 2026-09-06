@@ -1,47 +1,176 @@
 @model IEnumerable<SupermarketStockManagement.Models.Category>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Categories";
 }
 
-<h1>Index</h1>
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Categories</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Products)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(model => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.Products)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.CategoryId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.CategoryId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.CategoryId">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+        <p class="page-subtitle">
+            Organise products into supermarket categories.
+        </p>
+    </div>
+
+    <a asp-action="Create"
+       class="btn btn-primary">
+        + Add Category
+    </a>
+</div>
+
+
+<div class="content-card">
+
+    <div class="content-card-header">
+        <div>
+            <h2 class="content-card-title">
+                Category List
+            </h2>
+
+            <p class="card-subtitle">
+                @Model.Count() categories registered
+            </p>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Description</th>
+                    <th>Products</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @if (Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="product-cell">
+                                    <div class="category-avatar">
+                                        @item.Name.Substring(0, 1).ToUpper()
+                                    </div>
+
+                                    <div>
+                                        <strong>@item.Name</strong>
+
+                                        <small>
+                                            Category ID: @item.CategoryId
+                                        </small>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>
+                                @if (string.IsNullOrWhiteSpace(item.Description))
+                                {
+                                    <span class="text-muted">
+                                        No description
+                                    </span>
+                                }
+                                else
+                                {
+                                    @item.Description
+                                }
+                            </td>
+
+                            <td>
+                                <span class="product-count-badge">
+                                    @item.Products.Count product(s)
+                                </span>
+                            </td>
+
+                            <td>
+                                <div class="table-actions">
+                                    <a asp-action="Details"
+                                       asp-route-id="@item.CategoryId"
+                                       class="action-button details-action">
+                                        View
+                                    </a>
+
+                                    <a asp-action="Edit"
+                                       asp-route-id="@item.CategoryId"
+                                       class="action-button edit-action">
+                                        Edit
+                                    </a>
+
+                                    <a asp-action="Delete"
+                                       asp-route-id="@item.CategoryId"
+                                       class="action-button delete-action">
+                                        Delete
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4"
+                            class="empty-products">
+
+                            <div class="empty-products-icon">
+                                <svg viewBox="0 0 24 24"
+                                     width="32"
+                                     height="32"
+                                     fill="none">
+
+                                    <rect x="3"
+                                          y="3"
+                                          width="7"
+                                          height="7"
+                                          rx="2"
+                                          stroke="currentColor"
+                                          stroke-width="1.8" />
+
+                                    <rect x="14"
+                                          y="3"
+                                          width="7"
+                                          height="7"
+                                          rx="2"
+                                          stroke="currentColor"
+                                          stroke-width="1.8" />
+
+                                    <rect x="3"
+                                          y="14"
+                                          width="7"
+                                          height="7"
+                                          rx="2"
+                                          stroke="currentColor"
+                                          stroke-width="1.8" />
+
+                                    <rect x="14"
+                                          y="14"
+                                          width="7"
+                                          height="7"
+                                          rx="2"
+                                          stroke="currentColor"
+                                          stroke-width="1.8" />
+                                </svg>
+                            </div>
+
+                            <h3>No categories found</h3>
+
+                            <p>
+                                Create a category before adding products.
+                            </p>
+
+                            <a asp-action="Create"
+                               class="btn btn-primary">
+                                + Add First Category
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
