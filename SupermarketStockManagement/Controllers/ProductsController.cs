@@ -125,6 +125,7 @@ public class ProductsController : Controller
             _context.Add(stock);
             await _context.SaveChangesAsync();
 
+            TempData["Success"] = $"Product '{product.Name}' created successfully!";
             return RedirectToAction(nameof(Index));
         }
         ViewBag.CategoryId = new SelectList(
@@ -180,6 +181,7 @@ public class ProductsController : Controller
                     throw;
                 }
             }
+            TempData["Success"] = $"Product '{product.Name}' updated successfully!";
             return RedirectToAction(nameof(Index));
         }
         ViewBag.CategoryId = new SelectList(
@@ -217,6 +219,7 @@ public class ProductsController : Controller
         }
 
         await _context.SaveChangesAsync();
+        TempData["Success"] = "Product deleted successfully!";
         return RedirectToAction(nameof(Index));
     }
 
