@@ -55,8 +55,7 @@ function ProductDetail() {
       <div className="card shadow-sm border-0">
         <div className="row g-0">
           <div className="col-md-5">
-            <div className="bg-light d-flex align-items-center justify-content-center"
-              style={{ height: '400px' }}>
+            <div className="product-detail-image bg-light d-flex align-items-center justify-content-center">
               {product.imageUrl ? (
                 <img src={product.imageUrl} alt={product.name}
                   className="img-fluid" style={{ objectFit: 'cover', height: '100%', width: '100%' }} />
@@ -76,7 +75,7 @@ function ProductDetail() {
               <hr />
 
               <div className="d-flex align-items-center mb-3">
-                <span className="display-6 fw-bold text-success me-3">${product.price.toFixed(2)}</span>
+                <span className="product-detail-price display-6 fw-bold text-success me-3">${product.price.toFixed(2)}</span>
                 {inStock ? (
                   isLowStock ? (
                     <span className="badge bg-warning text-dark fs-6">
