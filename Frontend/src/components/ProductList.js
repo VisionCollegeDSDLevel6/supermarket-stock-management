@@ -105,8 +105,7 @@ function ProductList() {
               return (
                 <div key={p.productId} className="col-12 col-sm-6 col-md-4 col-lg-3">
                   <div className="card h-100 shadow-sm border-0">
-                    <div className="bg-light d-flex align-items-center justify-content-center"
-                      style={{ height: '180px', overflow: 'hidden' }}>
+                    <div className="product-image bg-light d-flex align-items-center justify-content-center">
                       {p.imageUrl ? (
                         <img src={p.imageUrl} alt={p.name} className="img-fluid"
                           style={{ objectFit: 'cover', height: '100%', width: '100%' }} />

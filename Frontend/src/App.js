@@ -1,26 +1,31 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Routes, Route, Link, useLocation } from 'react-router-dom'
 import ProductList from './components/ProductList'
 import ProductDetail from './components/ProductDetail'
+import './App.css'
 
 function App() {
   const location = useLocation()
+  const [menuOpen, setMenuOpen] = useState(false)
 
   return (
     <div className="d-flex flex-column min-vh-100">
       <nav className="navbar navbar-expand-lg navbar-dark bg-success">
         <div className="container">
           <Link className="navbar-brand fw-bold" to="/">FreshMart</Link>
-          <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+          <button className="navbar-toggler" type="button" aria-expanded={menuOpen}
+            aria-controls="navbarNav" onClick={() => setMenuOpen(open => !open)}>
             <span className="navbar-toggler-icon"></span>
           </button>
-          <div className="collapse navbar-collapse" id="navbarNav">
+          <div className={`navbar-collapse ${menuOpen ? 'show' : ''}`} id="navbarNav">
             <ul className="navbar-nav ms-auto">
               <li className="nav-item">
-                <Link className={`nav-link ${location.pathname === '/' ? 'active' : ''}`} to="/">Home</Link>
+                <Link className={`nav-link ${location.pathname === '/' ? 'active' : ''}`} to="/"
+                  onClick={() => setMenuOpen(false)}>Home</Link>
               </li>
               <li className="nav-item">
-                <Link className={`nav-link ${location.pathname.startsWith('/products') ? 'active' : ''}`} to="/products">Products</Link>
+                <Link className={`nav-link ${location.pathname.startsWith('/products') ? 'active' : ''}`} to="/products"
+                  onClick={() => setMenuOpen(false)}>Products</Link>
               </li>
             </ul>
           </div>
