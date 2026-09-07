@@ -1,0 +1,120 @@
+@model SupermarketStockManagement.Models.Category
+
+@{
+    ViewData["Title"] = "Delete Category";
+
+    var hasProducts = Model.Products.Any();
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Delete Category</h1>
+
+        <p class="page-subtitle">
+            Remove this category from the system.
+        </p>
+    </div>
+
+    <a asp-action="Index" class="btn btn-secondary">
+        ← Back to Categories
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-xl-7">
+        <div class="content-card delete-card">
+
+            <div class="delete-warning-header">
+                <div class="delete-warning-icon">!</div>
+
+                <div>
+                    <h2>Confirm Category Deletion</h2>
+
+                    <p>
+                        Check the category information before continuing.
+                    </p>
+                </div>
+            </div>
+
+            <div class="content-card-body">
+
+                @if (TempData["CategoryDeleteError"] != null)
+                {
+                    <div class="category-delete-error">
+                        @TempData["CategoryDeleteError"]
+                    </div>
+                }
+
+                <div class="delete-message">
+                    Are you sure you want to delete
+                    <strong>@Model.Name</strong>?
+                </div>
+
+                <div class="delete-product-summary">
+                    <div class="category-avatar category-avatar-large">
+                        @Model.Name.Substring(0, 1).ToUpper()
+                    </div>
+
+                    <div class="delete-product-information">
+                        <h3>@Model.Name</h3>
+
+                        <p>
+                            Category ID: @Model.CategoryId
+                        </p>
+                    </div>
+
+                    <span class="product-count-badge">
+                        @Model.Products.Count product(s)
+                    </span>
+                </div>
+
+                @if (hasProducts)
+                {
+                    <div class="delete-related-warning">
+                        This category cannot be deleted because it
+                        currently contains @Model.Products.Count product(s).
+                        Move or delete those products first.
+                    </div>
+                }
+                else
+                {
+                    <div class="safe-delete-message">
+                        This category has no associated products and
+                        can be safely deleted.
+                    </div>
+                }
+            </div>
+
+            <form asp-action="Delete"
+                  asp-route-id="@Model.CategoryId"
+                  method="post">
+
+                <input type="hidden"
+                       asp-for="CategoryId" />
+
+                <div class="form-footer">
+                    <a asp-action="Index"
+                       class="btn btn-secondary">
+                        Cancel
+                    </a>
+
+                    @if (hasProducts)
+                    {
+                        <button type="button"
+                                class="btn btn-danger"
+                                disabled>
+                            Delete Unavailable
+                        </button>
+                    }
+                    else
+                    {
+                        <button type="submit"
+                                class="btn btn-danger">
+                            Yes, Delete Category
+                        </button>
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

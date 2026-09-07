@@ -1,0 +1,81 @@
+@model SupermarketStockManagement.Models.Stock
+
+@{
+    ViewData["Title"] = "Delete Stock";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Delete Stock</h1>
+        <p class="page-subtitle">
+            Remove this stock record from inventory.
+        </p>
+    </div>
+
+    <a asp-action="Index" class="btn btn-secondary">
+        ← Back to Stock
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-xl-7">
+        <div class="content-card delete-card">
+            <div class="delete-warning-header">
+                <div class="delete-warning-icon">!</div>
+
+                <div>
+                    <h2>Confirm Stock Deletion</h2>
+                    <p>This action cannot be undone.</p>
+                </div>
+            </div>
+
+            <div class="content-card-body">
+                <div class="delete-message">
+                    Are you sure you want to delete the Stock record for
+                    <strong>
+                        @(Model.Product?.Name ?? "this product")
+                    </strong>?
+                </div>
+
+                <div class="delete-product-summary">
+                    <div class="stock-avatar stock-avatar-large">
+                        @(Model.Product?.Name
+                            .Substring(0, 1)
+                            .ToUpper() ?? "P")
+                    </div>
+
+                    <div class="delete-product-information">
+                        <h3>
+                            @(Model.Product?.Name ?? "Unknown Product")
+                        </h3>
+
+                        <p>Stock ID: @Model.StockId</p>
+                    </div>
+
+                    <div class="delete-product-price">
+                        @Model.Quantity units
+                    </div>
+                </div>
+            </div>
+
+            <form asp-action="Delete"
+                  asp-route-id="@Model.StockId"
+                  method="post">
+
+                <input type="hidden" asp-for="StockId" />
+
+                <div class="form-footer">
+                    <a asp-action="Index"
+                       class="btn btn-secondary">
+                        Cancel
+                    </a>
+
+                    <button type="submit"
+                            class="btn btn-danger">
+                        Yes, Delete Stock
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

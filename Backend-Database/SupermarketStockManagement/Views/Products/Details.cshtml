@@ -1,0 +1,202 @@
+@model SupermarketStockManagement.Models.Product
+
+@{
+    ViewData["Title"] = "Product Details";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Product Details</h1>
+
+        <p class="page-subtitle">
+            View complete information about this product.
+        </p>
+    </div>
+
+    <a asp-action="Index"
+       class="btn btn-secondary">
+        ← Back to Products
+    </a>
+</div>
+
+
+<div class="row justify-content-center">
+    <div class="col-xl-10">
+
+        <div class="content-card">
+
+            <div class="product-details-header">
+                <div class="product-details-avatar">
+                    @Model.Name.Substring(0, 1).ToUpper()
+                </div>
+
+                <div class="product-details-heading">
+                    <h2>@Model.Name</h2>
+
+                    <p>Product ID: @Model.ProductId</p>
+                </div>
+
+                <div class="product-details-status">
+                    @if (Model.Stock == null)
+                    {
+                        <span class="stock-status stock-empty">
+                            Stock not set
+                        </span>
+                    }
+                    else if (
+                        Model.Stock.Quantity <=
+                        Model.Stock.LowStockThreshold)
+                    {
+                        <span class="stock-status stock-low">
+                            Low stock
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="stock-status stock-good">
+                            In stock
+                        </span>
+                    }
+                </div>
+            </div>
+
+
+            <div class="content-card-body">
+
+                <div class="details-grid">
+
+                    <!-- Product Name -->
+                    <div class="details-item">
+                        <span class="details-label">
+                            Product Name
+                        </span>
+
+                        <strong class="details-value">
+                            @Model.Name
+                        </strong>
+                    </div>
+
+
+                    <!-- Category -->
+                    <div class="details-item">
+                        <span class="details-label">
+                            Category
+                        </span>
+
+                        <div class="details-value">
+                            @if (Model.Category != null)
+                            {
+                                <span class="category-badge">
+                                    @Model.Category.Name
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="stock-status stock-empty">
+                                    Not assigned
+                                </span>
+                            }
+                        </div>
+                    </div>
+
+
+                    <!-- Price -->
+                    <div class="details-item">
+                        <span class="details-label">
+                            Price
+                        </span>
+
+                        <strong class="details-value detail-price">
+                            @Model.Price.ToString("C")
+                        </strong>
+                    </div>
+
+
+                    <!-- Stock Quantity -->
+                    <div class="details-item">
+                        <span class="details-label">
+                            Stock Quantity
+                        </span>
+
+                        <strong class="details-value">
+                            @(Model.Stock?.Quantity.ToString() ?? "Not set")
+                        </strong>
+                    </div>
+
+
+                    <!-- Low Stock Threshold -->
+                    <div class="details-item">
+                        <span class="details-label">
+                            Low Stock Threshold
+                        </span>
+
+                        <strong class="details-value">
+                            @(Model.Stock?.LowStockThreshold.ToString() ?? "Not set")
+                        </strong>
+                    </div>
+
+
+                    <!-- Image URL -->
+                    <div class="details-item">
+                        <span class="details-label">
+                            Image
+                        </span>
+
+                        <div class="details-value">
+                            @if (string.IsNullOrWhiteSpace(Model.ImageUrl))
+                            {
+                                <span class="text-muted">
+                                    No image provided
+                                </span>
+                            }
+                            else
+                            {
+                                <a href="@Model.ImageUrl"
+                                   target="_blank"
+                                   rel="noopener noreferrer">
+                                    View product image
+                                </a>
+                            }
+                        </div>
+                    </div>
+
+
+                    <!-- Description -->
+                    <div class="details-item details-full-width">
+                        <span class="details-label">
+                            Description
+                        </span>
+
+                        <div class="details-description">
+                            @if (string.IsNullOrWhiteSpace(Model.Description))
+                            {
+                                <span class="text-muted">
+                                    No description has been provided.
+                                </span>
+                            }
+                            else
+                            {
+                                @Model.Description
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="form-footer">
+                <a asp-action="Delete"
+                   asp-route-id="@Model.ProductId"
+                   class="btn btn-danger">
+                    Delete Product
+                </a>
+
+                <a asp-action="Edit"
+                   asp-route-id="@Model.ProductId"
+                   class="btn btn-primary">
+                    Edit Product
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

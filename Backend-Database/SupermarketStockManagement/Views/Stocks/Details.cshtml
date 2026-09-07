@@ -1,0 +1,110 @@
+@model SupermarketStockManagement.Models.Stock
+
+@{
+    ViewData["Title"] = "Stock Details";
+
+    var isOutOfStock = Model.Quantity == 0;
+
+    var isLowStock =
+        Model.Quantity <= Model.LowStockThreshold;
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Stock Details</h1>
+        <p class="page-subtitle">
+            View quantity and stock status information.
+        </p>
+    </div>
+
+    <a asp-action="Index" class="btn btn-secondary">
+        ← Back to Stock
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-xl-8">
+        <div class="content-card">
+            <div class="product-details-header">
+                <div class="stock-avatar stock-avatar-large">
+                    @(Model.Product?.Name
+                        .Substring(0, 1)
+                        .ToUpper() ?? "P")
+                </div>
+
+                <div class="product-details-heading">
+                    <h2>@(Model.Product?.Name ?? "Unknown Product")</h2>
+                    <p>Stock ID: @Model.StockId</p>
+                </div>
+
+                @if (isOutOfStock)
+                {
+                    <span class="stock-status stock-empty">
+                        Out of stock
+                    </span>
+                }
+                else if (isLowStock)
+                {
+                    <span class="stock-status stock-low">
+                        Low stock
+                    </span>
+                }
+                else
+                {
+                    <span class="stock-status stock-good">
+                        In stock
+                    </span>
+                }
+            </div>
+
+            <div class="content-card-body">
+                <div class="details-grid">
+                    <div class="details-item">
+                        <span class="details-label">Product</span>
+                        <strong class="details-value">
+                            @(Model.Product?.Name ?? "Unknown")
+                        </strong>
+                    </div>
+
+                    <div class="details-item">
+                        <span class="details-label">Product ID</span>
+                        <strong class="details-value">
+                            @Model.ProductId
+                        </strong>
+                    </div>
+
+                    <div class="details-item">
+                        <span class="details-label">Quantity</span>
+                        <strong class="details-value detail-stock">
+                            @Model.Quantity units
+                        </strong>
+                    </div>
+
+                    <div class="details-item">
+                        <span class="details-label">
+                            Low-Stock Threshold
+                        </span>
+
+                        <strong class="details-value">
+                            @Model.LowStockThreshold units
+                        </strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-footer">
+                <a asp-action="Delete"
+                   asp-route-id="@Model.StockId"
+                   class="btn btn-danger">
+                    Delete Stock
+                </a>
+
+                <a asp-action="Edit"
+                   asp-route-id="@Model.StockId"
+                   class="btn btn-primary">
+                    Edit Stock
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

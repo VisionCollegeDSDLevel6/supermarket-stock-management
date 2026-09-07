@@ -1,0 +1,148 @@
+@model IEnumerable<SupermarketStockManagement.Models.Stock>
+
+@{
+    ViewData["Title"] = "Stock";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Stock</h1>
+        <p class="page-subtitle">
+            Monitor product quantities and low-stock levels.
+        </p>
+    </div>
+
+    <a asp-action="Create" class="btn btn-primary">
+        + Add Stock
+    </a>
+</div>
+
+<div class="content-card">
+    <div class="content-card-header">
+        <div>
+            <h2 class="content-card-title">
+                Inventory Stock
+            </h2>
+
+            <p class="card-subtitle">
+                @Model.Count() stock records
+            </p>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Low-Stock Threshold</th>
+                    <th>Status</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @if (Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        var isOutOfStock = item.Quantity == 0;
+
+                        var isLowStock =
+                            item.Quantity <= item.LowStockThreshold;
+
+                        <tr>
+                            <td>
+                                <div class="product-cell">
+                                    <div class="stock-avatar">
+                                        @(item.Product?.Name
+                                            .Substring(0, 1)
+                                            .ToUpper() ?? "P")
+                                    </div>
+
+                                    <div>
+                                        <strong>
+                                            @(item.Product?.Name ?? "Unknown")
+                                        </strong>
+
+                                        <small>
+                                            Product ID: @item.ProductId
+                                        </small>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>
+                                <strong class="stock-quantity">
+                                    @item.Quantity
+                                </strong>
+                                <span class="text-muted"> units</span>
+                            </td>
+
+                            <td>@item.LowStockThreshold units</td>
+
+                            <td>
+                                @if (isOutOfStock)
+                                {
+                                    <span class="stock-status stock-empty">
+                                        Out of stock
+                                    </span>
+                                }
+                                else if (isLowStock)
+                                {
+                                    <span class="stock-status stock-low">
+                                        Low stock
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="stock-status stock-good">
+                                        In stock
+                                    </span>
+                                }
+                            </td>
+
+                            <td>
+                                <div class="table-actions">
+                                    <a asp-action="Details"
+                                       asp-route-id="@item.StockId"
+                                       class="action-button details-action">
+                                        View
+                                    </a>
+
+                                    <a asp-action="Edit"
+                                       asp-route-id="@item.StockId"
+                                       class="action-button edit-action">
+                                        Edit
+                                    </a>
+
+                                    <a asp-action="Delete"
+                                       asp-route-id="@item.StockId"
+                                       class="action-button delete-action">
+                                        Delete
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" class="empty-products">
+                            <div class="empty-products-icon">▥</div>
+                            <h3>No stock records found</h3>
+                            <p>Add stock quantities for your products.</p>
+
+                            <a asp-action="Create"
+                               class="btn btn-primary">
+                                + Add First Stock Record
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

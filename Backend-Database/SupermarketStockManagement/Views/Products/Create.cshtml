@@ -1,0 +1,186 @@
+@model SupermarketStockManagement.Models.Product
+
+@{
+    ViewData["Title"] = "Add Product";
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Add Product</h1>
+
+        <p class="page-subtitle">
+            Create a new product for the supermarket inventory.
+        </p>
+    </div>
+
+    <a asp-action="Index"
+       class="btn btn-secondary">
+        ← Back to Products
+    </a>
+</div>
+
+
+<div class="row justify-content-center">
+    <div class="col-xl-9">
+
+        <div class="content-card product-form-card">
+
+            <div class="content-card-header">
+                <div>
+                    <h2 class="content-card-title">
+                        Product Information
+                    </h2>
+
+                    <p class="card-subtitle">
+                        Enter the product details below.
+                    </p>
+                </div>
+
+                <span class="required-note">
+                    * Required fields
+                </span>
+            </div>
+
+            <form asp-action="Create"
+                  method="post">
+
+                <div class="content-card-body">
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="validation-summary-errors">
+                    </div>
+
+                    <div class="row g-4">
+
+                        <!-- Product Name -->
+                        <div class="col-md-8">
+                            <label asp-for="Name"
+                                   class="form-label">
+                                Product Name *
+                            </label>
+
+                            <input asp-for="Name"
+                                   class="form-control"
+                                   placeholder="For example: Fresh Milk" />
+
+                            <span asp-validation-for="Name"
+                                  class="text-danger">
+                            </span>
+                        </div>
+
+
+                        <!-- Price -->
+                        <div class="col-md-4">
+                            <label asp-for="Price"
+                                   class="form-label">
+                                Price *
+                            </label>
+
+                            <div class="price-input">
+                                <span>$</span>
+
+                                <input asp-for="Price"
+                                       class="form-control"
+                                       placeholder="0.00" />
+                            </div>
+
+                            <span asp-validation-for="Price"
+                                  class="text-danger">
+                            </span>
+                        </div>
+
+
+                        <!-- Category -->
+                        <div class="col-md-6">
+                            <label asp-for="CategoryId"
+                                   class="form-label">
+                                Category *
+                            </label>
+
+                            <select asp-for="CategoryId"
+                                    class="form-select"
+                                    asp-items="ViewBag.CategoryId">
+
+                                <option value="">
+                                    Select a category
+                                </option>
+                            </select>
+
+                            <span asp-validation-for="CategoryId"
+                                  class="text-danger">
+                            </span>
+                        </div>
+
+
+                        <!-- Image URL -->
+                        <div class="col-md-6">
+                            <label asp-for="ImageUrl"
+                                   class="form-label">
+                                Image URL
+                            </label>
+
+                            <input asp-for="ImageUrl"
+                                   class="form-control"
+                                   placeholder="https://example.com/product.jpg" />
+
+                            <span asp-validation-for="ImageUrl"
+                                  class="text-danger">
+                            </span>
+
+                            <small class="form-help">
+                                Optional link to a product image.
+                            </small>
+                        </div>
+
+
+                        <!-- Description -->
+                        <div class="col-12">
+                            <label asp-for="Description"
+                                   class="form-label">
+                                Description
+                            </label>
+
+                            <textarea asp-for="Description"
+                                      class="form-control"
+                                      rows="5"
+                                      placeholder="Enter a short product description...">
+                            </textarea>
+
+                            <span asp-validation-for="Description"
+                                  class="text-danger">
+                            </span>
+
+                            <small class="form-help">
+                                Maximum 1,000 characters.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Form Actions -->
+                <div class="form-footer">
+                    <a asp-action="Index"
+                       class="btn btn-secondary">
+                        Cancel
+                    </a>
+
+                    <button type="submit"
+                            class="btn btn-primary">
+                        Create Product
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync(
+            "_ValidationScriptsPartial"
+        );
+    }
+}
