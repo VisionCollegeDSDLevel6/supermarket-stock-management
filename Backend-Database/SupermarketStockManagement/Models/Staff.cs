@@ -6,6 +6,10 @@ namespace SupermarketStockManagement.Models
     {
         public int StaffId { get; set; }
 
+        // Stores the related ASP.NET Identity user ID
+        [StringLength(450)]
+        public string? IdentityUserId { get; set; }
+
         [Required]
         [StringLength(100)]
         public string Name { get; set; } = string.Empty;

@@ -2,42 +2,74 @@
 
 @{
     ViewData["Title"] = "Delete Staff";
+
+    var avatarLetter =
+        string.IsNullOrWhiteSpace(Model.Name)
+            ? "?"
+            : Model.Name.Substring(0, 1).ToUpper();
+
+    var hasLoginAccount =
+        !string.IsNullOrWhiteSpace(Model.IdentityUserId);
 }
 
 <div class="page-header">
     <div>
         <h1 class="page-title">Delete Staff</h1>
+
         <p class="page-subtitle">
             Remove this staff member from the system.
         </p>
     </div>
 
-    <a asp-action="Index" class="btn btn-secondary">
+    <a asp-action="Index"
+       class="btn btn-secondary">
         ← Back to Staff
     </a>
 </div>
 
 <div class="row justify-content-center">
     <div class="col-xl-7">
+
         <div class="content-card delete-card">
+
             <div class="delete-warning-header">
-                <div class="delete-warning-icon">!</div>
+
+                <div class="delete-warning-icon">
+                    !
+                </div>
 
                 <div>
                     <h2>Confirm Staff Deletion</h2>
-                    <p>This action cannot be undone.</p>
+
+                    <p>
+                        This action cannot be undone.
+                    </p>
                 </div>
+
             </div>
 
             <div class="content-card-body">
+
                 <div class="delete-message">
                     Are you sure you want to delete
                     <strong>@Model.Name</strong>?
                 </div>
 
+                @if (hasLoginAccount)
+                {
+                    <div class="alert alert-warning"
+                         role="alert">
+
+                        The associated login account will also be
+                        permanently deleted.
+
+                    </div>
+                }
+
                 <div class="delete-product-summary">
+
                     <div class="staff-avatar staff-avatar-large">
-                        @Model.Name.Substring(0, 1).ToUpper()
+                        @avatarLetter
                     </div>
 
                     <div class="delete-product-information">
@@ -45,7 +77,10 @@
                         <p>@Model.Email</p>
                     </div>
 
-                    <span class="role-badge">@Model.Role</span>
+                    <span class="role-badge">
+                        @Model.Role
+                    </span>
+
                 </div>
             </div>
 
@@ -53,9 +88,11 @@
                   asp-route-id="@Model.StaffId"
                   method="post">
 
-                <input type="hidden" asp-for="StaffId" />
+                <input type="hidden"
+                       asp-for="StaffId" />
 
                 <div class="form-footer">
+
                     <a asp-action="Index"
                        class="btn btn-secondary">
                         Cancel
@@ -65,8 +102,10 @@
                             class="btn btn-danger">
                         Yes, Delete Staff
                     </button>
+
                 </div>
             </form>
+
         </div>
     </div>
 </div>

@@ -18,9 +18,19 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<IdentityUser>(
-    options => options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddDefaultIdentity<IdentityUser>(options =>
+{
+    
+    options.SignIn.RequireConfirmedAccount = false;
+
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequiredLength = 6;
+})
+.AddRoles<IdentityRole>()
+.AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddControllersWithViews();
 
@@ -41,6 +51,25 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+// Create the default roles and administrator account
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    try
+    {
+        await IdentitySeeder.SeedRolesAndAdminAsync(services);
+    }
+    catch (Exception exception)
+    {
+        var logger = services
+            .GetRequiredService<ILogger<Program>>();
+
+        logger.LogError(
+            exception,
+            "An error occurred while seeding Identity data.");
+    }
+}
 
 // Enable Swagger in Development
 if (app.Environment.IsDevelopment())
@@ -65,6 +94,8 @@ app.UseHttpsRedirection();
 app.UseRouting();
 
 app.UseCors("AllowFrontend");
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

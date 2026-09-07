@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SupermarketStockManagement.Data;
 using SupermarketStockManagement.Models;
 
+[Authorize(Roles = "Admin,Manager,Staff")]
 public class StocksController : Controller
 {
     private readonly ApplicationDbContext _context;

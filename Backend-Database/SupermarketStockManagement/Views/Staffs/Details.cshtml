@@ -2,60 +2,114 @@
 
 @{
     ViewData["Title"] = "Staff Details";
+
+    var avatarLetter =
+        string.IsNullOrWhiteSpace(Model.Name)
+            ? "?"
+            : Model.Name.Substring(0, 1).ToUpper();
+
+    var hasLoginAccount =
+        !string.IsNullOrWhiteSpace(Model.IdentityUserId);
 }
 
 <div class="page-header">
     <div>
         <h1 class="page-title">Staff Details</h1>
+
         <p class="page-subtitle">
             View this staff member's information.
         </p>
     </div>
 
-    <a asp-action="Index" class="btn btn-secondary">
+    <a asp-action="Index"
+       class="btn btn-secondary">
         ← Back to Staff
     </a>
 </div>
 
 <div class="row justify-content-center">
     <div class="col-xl-8">
+
         <div class="content-card">
+
             <div class="product-details-header">
+
                 <div class="staff-avatar staff-avatar-large">
-                    @Model.Name.Substring(0, 1).ToUpper()
+                    @avatarLetter
                 </div>
 
                 <div class="product-details-heading">
                     <h2>@Model.Name</h2>
-                    <p>Staff ID: @Model.StaffId</p>
+
+                    <p>
+                        Staff ID: @Model.StaffId
+                    </p>
                 </div>
 
-                <span class="role-badge">@Model.Role</span>
+                <span class="role-badge">
+                    @Model.Role
+                </span>
             </div>
 
             <div class="content-card-body">
+
                 <div class="details-grid">
+
                     <div class="details-item">
-                        <span class="details-label">Full Name</span>
-                        <strong class="details-value">@Model.Name</strong>
+                        <span class="details-label">
+                            Full Name
+                        </span>
+
+                        <strong class="details-value">
+                            @Model.Name
+                        </strong>
                     </div>
 
                     <div class="details-item">
-                        <span class="details-label">Email Address</span>
+                        <span class="details-label">
+                            Email Address
+                        </span>
+
                         <a class="details-value"
                            href="mailto:@Model.Email">
                             @Model.Email
                         </a>
                     </div>
 
-                    <div class="details-item details-full-width">
-                        <span class="details-label">Role</span>
-                        <span class="role-badge">@Model.Role</span>
+                    <div class="details-item">
+                        <span class="details-label">
+                            Role
+                        </span>
+
+                        <span class="role-badge">
+                            @Model.Role
+                        </span>
                     </div>
+
+                    <div class="details-item">
+                        <span class="details-label">
+                            Login Account
+                        </span>
+
+                        @if (hasLoginAccount)
+                        {
+                            <span class="badge bg-success">
+                                Active
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning text-dark">
+                                Login not created
+                            </span>
+                        }
+                    </div>
+
                 </div>
             </div>
 
             <div class="form-footer">
+
                 <a asp-action="Delete"
                    asp-route-id="@Model.StaffId"
                    class="btn btn-danger">
@@ -67,6 +121,7 @@
                    class="btn btn-primary">
                     Edit Staff
                 </a>
+
             </div>
         </div>
     </div>

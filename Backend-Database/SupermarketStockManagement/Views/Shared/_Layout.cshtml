@@ -1,7 +1,44 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+
+@{
+    var isLoggedIn = SignInManager.IsSignedIn(User);
+
+    string roleName;
+    string roleDescription;
+    string avatarText;
+
+    if (User.IsInRole("Admin"))
+    {
+        roleName = "Administrator";
+        roleDescription = "System Administrator";
+        avatarText = "AD";
+    }
+    else if (User.IsInRole("Manager"))
+    {
+        roleName = "Manager";
+        roleDescription = "Store Manager";
+        avatarText = "MG";
+    }
+    else if (User.IsInRole("Staff"))
+    {
+        roleName = "Staff";
+        roleDescription = "Stock Staff";
+        avatarText = "ST";
+    }
+    else
+    {
+        roleName = "User";
+        roleDescription = "Guest";
+        avatarText = "US";
+    }
+}
+
+<!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
     <meta charset="utf-8" />
+
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0" />
 
@@ -9,7 +46,8 @@
 
     <script>
             // Apply the saved theme before the page renders
-            const savedTheme = localStorage.getItem("stockflow-theme");
+            const savedTheme =
+                localStorage.getItem("stockflow-theme");
 
             if (savedTheme) {
                 document.documentElement.setAttribute(
@@ -73,193 +111,194 @@
                 </a>
             </div>
 
-           <nav class="sidebar-navigation">
+            <nav class="sidebar-navigation">
+                @if (isLoggedIn)
+                {
+                    <!-- Main menu -->
+                    <p class="navigation-title">MAIN MENU</p>
 
-    <!-- Main Menu -->
-    <p class="navigation-title">MAIN MENU</p>
+                    <a asp-controller="Home"
+                       asp-action="Index"
+                       class="sidebar-link">
 
-    <a asp-controller="Home"
-       asp-action="Index"
-       class="sidebar-link">
+                        <span class="sidebar-icon">
+                            <svg viewBox="0 0 24 24"
+                                 width="20"
+                                 height="20"
+                                 fill="none">
 
-        <span class="sidebar-icon">
-            <svg viewBox="0 0 24 24"
-                 width="20"
-                 height="20"
-                 fill="none">
+                                <rect x="3"
+                                      y="3"
+                                      width="7"
+                                      height="7"
+                                      rx="2"
+                                      stroke="currentColor"
+                                      stroke-width="2" />
 
-                <rect x="3"
-                      y="3"
-                      width="7"
-                      height="7"
-                      rx="2"
-                      stroke="currentColor"
-                      stroke-width="2" />
+                                <rect x="14"
+                                      y="3"
+                                      width="7"
+                                      height="7"
+                                      rx="2"
+                                      stroke="currentColor"
+                                      stroke-width="2" />
 
-                <rect x="14"
-                      y="3"
-                      width="7"
-                      height="7"
-                      rx="2"
-                      stroke="currentColor"
-                      stroke-width="2" />
+                                <rect x="3"
+                                      y="14"
+                                      width="7"
+                                      height="7"
+                                      rx="2"
+                                      stroke="currentColor"
+                                      stroke-width="2" />
 
-                <rect x="3"
-                      y="14"
-                      width="7"
-                      height="7"
-                      rx="2"
-                      stroke="currentColor"
-                      stroke-width="2" />
+                                <rect x="14"
+                                      y="14"
+                                      width="7"
+                                      height="7"
+                                      rx="2"
+                                      stroke="currentColor"
+                                      stroke-width="2" />
+                            </svg>
+                        </span>
 
-                <rect x="14"
-                      y="14"
-                      width="7"
-                      height="7"
-                      rx="2"
-                      stroke="currentColor"
-                      stroke-width="2" />
-            </svg>
-        </span>
+                        <span>Dashboard</span>
+                    </a>
 
-        <span>Dashboard</span>
-    </a>
+                    <!-- Management -->
+                    <p class="navigation-title navigation-spacing">
+                        MANAGEMENT
+                    </p>
 
+                    <!-- Categories -->
+                    <a asp-controller="Categories"
+                       asp-action="Index"
+                       class="sidebar-link">
 
-    <!-- Management -->
-    <p class="navigation-title navigation-spacing">
-        MANAGEMENT
-    </p>
+                        <span class="sidebar-icon">
+                            <svg viewBox="0 0 24 24"
+                                 width="20"
+                                 height="20"
+                                 fill="none">
 
-    <!-- Categories -->
-    <a asp-controller="Categories"
-       asp-action="Index"
-       class="sidebar-link">
+                                <path d="M4 5H10V11H4V5Z"
+                                      stroke="currentColor"
+                                      stroke-width="2" />
 
-        <span class="sidebar-icon">
-            <svg viewBox="0 0 24 24"
-                 width="20"
-                 height="20"
-                 fill="none">
+                                <path d="M14 5H20V11H14V5Z"
+                                      stroke="currentColor"
+                                      stroke-width="2" />
 
-                <path d="M4 5H10V11H4V5Z"
-                      stroke="currentColor"
-                      stroke-width="2" />
+                                <path d="M4 15H10V21H4V15Z"
+                                      stroke="currentColor"
+                                      stroke-width="2" />
 
-                <path d="M14 5H20V11H14V5Z"
-                      stroke="currentColor"
-                      stroke-width="2" />
+                                <path d="M14 15H20V21H14V15Z"
+                                      stroke="currentColor"
+                                      stroke-width="2" />
+                            </svg>
+                        </span>
 
-                <path d="M4 15H10V21H4V15Z"
-                      stroke="currentColor"
-                      stroke-width="2" />
+                        <span>Categories</span>
+                    </a>
 
-                <path d="M14 15H20V21H14V15Z"
-                      stroke="currentColor"
-                      stroke-width="2" />
-            </svg>
-        </span>
+                    <!-- Products -->
+                    <a asp-controller="Products"
+                       asp-action="Index"
+                       class="sidebar-link">
 
-        <span>Categories</span>
-    </a>
+                        <span class="sidebar-icon">
+                            <svg viewBox="0 0 24 24"
+                                 width="20"
+                                 height="20"
+                                 fill="none">
 
+                                <path d="M4 7L12 3L20 7L12 11L4 7Z"
+                                      stroke="currentColor"
+                                      stroke-width="2"
+                                      stroke-linejoin="round" />
 
-    <!-- Products -->
-    <a asp-controller="Products"
-       asp-action="Index"
-       class="sidebar-link">
+                                <path d="M4 7V17L12 21L20 17V7"
+                                      stroke="currentColor"
+                                      stroke-width="2"
+                                      stroke-linejoin="round" />
 
-        <span class="sidebar-icon">
-            <svg viewBox="0 0 24 24"
-                 width="20"
-                 height="20"
-                 fill="none">
+                                <path d="M12 11V21"
+                                      stroke="currentColor"
+                                      stroke-width="2" />
+                            </svg>
+                        </span>
 
-                <path d="M4 7L12 3L20 7L12 11L4 7Z"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linejoin="round" />
+                        <span>Products</span>
+                    </a>
 
-                <path d="M4 7V17L12 21L20 17V7"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linejoin="round" />
+                    <!-- Stock -->
+                    <a asp-controller="Stocks"
+                       asp-action="Index"
+                       class="sidebar-link">
 
-                <path d="M12 11V21"
-                      stroke="currentColor"
-                      stroke-width="2" />
-            </svg>
-        </span>
+                        <span class="sidebar-icon">
+                            <svg viewBox="0 0 24 24"
+                                 width="20"
+                                 height="20"
+                                 fill="none">
 
-        <span>Products</span>
-    </a>
+                                <path d="M4 20V10"
+                                      stroke="currentColor"
+                                      stroke-width="2"
+                                      stroke-linecap="round" />
 
+                                <path d="M10 20V4"
+                                      stroke="currentColor"
+                                      stroke-width="2"
+                                      stroke-linecap="round" />
 
-    <!-- Stock -->
-    <a asp-controller="Stocks"
-       asp-action="Index"
-       class="sidebar-link">
+                                <path d="M16 20V13"
+                                      stroke="currentColor"
+                                      stroke-width="2"
+                                      stroke-linecap="round" />
 
-        <span class="sidebar-icon">
-            <svg viewBox="0 0 24 24"
-                 width="20"
-                 height="20"
-                 fill="none">
+                                <path d="M22 20V7"
+                                      stroke="currentColor"
+                                      stroke-width="2"
+                                      stroke-linecap="round" />
+                            </svg>
+                        </span>
 
-                <path d="M4 20V10"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round" />
+                        <span>Stock</span>
+                    </a>
 
-                <path d="M10 20V4"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round" />
+                    @if (User.IsInRole("Admin") ||
+                         User.IsInRole("Manager"))
+                    {
+                        <!-- Staff -->
+                        <a asp-controller="Staffs"
+                           asp-action="Index"
+                           class="sidebar-link">
 
-                <path d="M16 20V13"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round" />
+                            <span class="sidebar-icon">
+                                <svg viewBox="0 0 24 24"
+                                     width="20"
+                                     height="20"
+                                     fill="none">
 
-                <path d="M22 20V7"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round" />
-            </svg>
-        </span>
+                                    <circle cx="12"
+                                            cy="8"
+                                            r="4"
+                                            stroke="currentColor"
+                                            stroke-width="2" />
 
-        <span>Stock</span>
-    </a>
+                                    <path d="M4 21C4 16.6 7.6 13 12 13C16.4 13 20 16.6 20 21"
+                                          stroke="currentColor"
+                                          stroke-width="2"
+                                          stroke-linecap="round" />
+                                </svg>
+                            </span>
 
-
-    <!-- Staff -->
-    <a asp-controller="Staffs"
-       asp-action="Index"
-       class="sidebar-link">
-
-        <span class="sidebar-icon">
-            <svg viewBox="0 0 24 24"
-                 width="20"
-                 height="20"
-                 fill="none">
-
-                <circle cx="12"
-                        cy="8"
-                        r="4"
-                        stroke="currentColor"
-                        stroke-width="2" />
-
-                <path d="M4 21C4 16.6 7.6 13 12 13C16.4 13 20 16.6 20 21"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round" />
-            </svg>
-        </span>
-
-        <span>Staff</span>
-    </a>
-
-</nav>
+                            <span>Staff</span>
+                        </a>
+                    }
+                }
+            </nav>
 
             <div class="sidebar-footer">
                 <div class="system-status">
@@ -272,7 +311,6 @@
                 </div>
             </div>
         </aside>
-
 
         <!-- Main area -->
         <div class="app-main">
@@ -324,7 +362,7 @@
 
                 <div class="topbar-actions">
 
-                    <!-- Light/Dark mode switch -->
+                    <!-- Light and dark mode switch -->
                     <button type="button"
                             class="theme-switch"
                             id="themeToggle"
@@ -367,17 +405,47 @@
                         </span>
                     </button>
 
+                    <!-- User account section -->
                     <div class="user-section">
-                        <div class="user-avatar">SF</div>
 
-                        <div class="user-information">
-                            <strong>Administrator</strong>
-                            <small>Stock Manager</small>
-                        </div>
+                        @if (isLoggedIn)
+                        {
+                            <div class="user-avatar">
+                                @avatarText
+                            </div>
+
+                            <div class="user-information">
+                                <strong>@roleName</strong>
+                                <small>@roleDescription</small>
+                            </div>
+
+                            <form asp-area="Identity"
+                                  asp-page="/Account/Logout"
+                                  asp-route-returnUrl="@Url.Action(
+                                                                      "Index",
+                                                                      "Home",
+                                                                      new { area = "" })"
+                                  method="post"
+                                  class="m-0">
+
+                                <button type="submit"
+                                        class="btn btn-outline-danger btn-sm">
+                                    Logout
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <a asp-area="Identity"
+                               asp-page="/Account/Login"
+                               class="btn btn-primary btn-sm">
+                                Login
+                            </a>
+                        }
+
                     </div>
                 </div>
             </header>
-
 
             <!-- Page content -->
             <main class="page-content">
@@ -394,14 +462,17 @@
         </div>
     </div>
 
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <div class="sidebar-overlay"
+         id="sidebarOverlay">
+    </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
 
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
     <script src="~/js/site.js"
-            asp-append-version="true"></script>
+            asp-append-version="true">
+    </script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

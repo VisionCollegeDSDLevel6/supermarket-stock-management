@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +20,7 @@ namespace SupermarketStockManagement.Controllers
             _context = context;
         }
 
-
+        [Authorize(Roles = "Admin,Manager,Staff")]
         // Dashboard
         public async Task<IActionResult> Index()
         {

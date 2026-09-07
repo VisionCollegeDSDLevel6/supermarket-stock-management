@@ -1,8 +1,10 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SupermarketStockManagement.Data;
 using SupermarketStockManagement.Models;
 
+[Authorize(Roles = "Admin,Manager,Staff")]
 public class CategoriesController : Controller
 {
     private readonly ApplicationDbContext _context;

@@ -1,4 +1,4 @@
-@model SupermarketStockManagement.Models.Staff
+@model SupermarketStockManagement.ViewModels.StaffCreateViewModel
 
 @{
     ViewData["Title"] = "Add Staff";
@@ -7,19 +7,23 @@
 <div class="page-header">
     <div>
         <h1 class="page-title">Add Staff</h1>
+
         <p class="page-subtitle">
-            Register a new supermarket staff member.
+            Create a staff profile and login account.
         </p>
     </div>
 
-    <a asp-action="Index" class="btn btn-secondary">
+    <a asp-action="Index"
+       class="btn btn-secondary">
         ← Back to Staff
     </a>
 </div>
 
 <div class="row justify-content-center">
     <div class="col-xl-8">
+
         <div class="content-card product-form-card">
+
             <div class="content-card-header">
                 <div>
                     <h2 class="content-card-title">
@@ -27,22 +31,30 @@
                     </h2>
 
                     <p class="card-subtitle">
-                        Enter the staff member's details.
+                        Enter the staff member's account details.
                     </p>
                 </div>
 
-                <span class="required-note">* Required fields</span>
+                <span class="required-note">
+                    * Required fields
+                </span>
             </div>
 
-            <form asp-action="Create" method="post">
+            <form asp-action="Create"
+                  method="post">
+
                 <div class="content-card-body">
+
                     <div asp-validation-summary="ModelOnly"
                          class="validation-summary-errors">
                     </div>
 
                     <div class="row g-4">
+
+                        <!-- Full name -->
                         <div class="col-md-6">
-                            <label asp-for="Name" class="form-label">
+                            <label asp-for="Name"
+                                   class="form-label">
                                 Full Name *
                             </label>
 
@@ -55,8 +67,10 @@
                             </span>
                         </div>
 
+                        <!-- Email -->
                         <div class="col-md-6">
-                            <label asp-for="Email" class="form-label">
+                            <label asp-for="Email"
+                                   class="form-label">
                                 Email Address *
                             </label>
 
@@ -69,28 +83,85 @@
                             </span>
                         </div>
 
-                        <div class="col-12">
-                            <label asp-for="Role" class="form-label">
+                        <!-- Role -->
+                        <div class="col-md-6">
+                            <label asp-for="Role"
+                                   class="form-label">
                                 Staff Role *
                             </label>
 
-                            <select asp-for="Role" class="form-select">
-                                <option value="">Select a role</option>
-                                <option value="Staff">Staff</option>
-                                <option value="Manager">Manager</option>
-                                <option value="Administrator">
-                                    Administrator
+                            <select asp-for="Role"
+                                    class="form-select">
+
+                                <option value="">
+                                    Select a role
+                                </option>
+
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <option value="Manager">
+                                        Manager
+                                    </option>
+                                }
+
+                                <option value="Staff">
+                                    Staff
                                 </option>
                             </select>
 
                             <span asp-validation-for="Role"
                                   class="text-danger">
                             </span>
+
+                            @if (User.IsInRole("Manager"))
+                            {
+                                <small class="text-muted">
+                                    Managers can only create Staff accounts.
+                                </small>
+                            }
                         </div>
+
+                        <!-- Password -->
+                        <div class="col-md-6">
+                            <label asp-for="Password"
+                                   class="form-label">
+                                Temporary Password *
+                            </label>
+
+                            <input asp-for="Password"
+                                   class="form-control"
+                                   placeholder="Enter a temporary password" />
+
+                            <span asp-validation-for="Password"
+                                  class="text-danger">
+                            </span>
+
+                            <small class="text-muted">
+                                The password must contain at least 6 characters.
+                            </small>
+                        </div>
+
+                        <!-- Confirm password -->
+                        <div class="col-md-6">
+                            <label asp-for="ConfirmPassword"
+                                   class="form-label">
+                                Confirm Password *
+                            </label>
+
+                            <input asp-for="ConfirmPassword"
+                                   class="form-control"
+                                   placeholder="Enter the password again" />
+
+                            <span asp-validation-for="ConfirmPassword"
+                                  class="text-danger">
+                            </span>
+                        </div>
+
                     </div>
                 </div>
 
                 <div class="form-footer">
+
                     <a asp-action="Index"
                        class="btn btn-secondary">
                         Cancel
@@ -98,8 +169,9 @@
 
                     <button type="submit"
                             class="btn btn-primary">
-                        Create Staff Member
+                        Create Staff Account
                     </button>
+
                 </div>
             </form>
         </div>

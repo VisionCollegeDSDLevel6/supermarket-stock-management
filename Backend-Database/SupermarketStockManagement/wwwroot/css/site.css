@@ -1808,3 +1808,75 @@ dl.row {
     color: var(--success);
     font-size: 0.74rem;
 }
+.account-section {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.account-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.account-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #6c5ce7, #8c7cff);
+    box-shadow: 0 8px 20px rgba(108, 92, 231, 0.25);
+}
+
+.account-information {
+    display: flex;
+    flex-direction: column;
+    min-width: 130px;
+}
+
+    .account-information strong {
+        color: var(--text-primary);
+        font-size: 14px;
+    }
+
+    .account-information span {
+        margin-top: 3px;
+        color: var(--text-muted);
+        font-size: 12px;
+    }
+
+.account-section form {
+    margin: 0;
+}
+
+.account-button {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.login-button {
+    color: white;
+    background: #6c5ce7;
+}
+
+.logout-button {
+    color: #ef4444;
+    background: #fee2e2;
+}
+
+.account-button:hover {
+    transform: translateY(-1px);
+    opacity: 0.9;
+}
