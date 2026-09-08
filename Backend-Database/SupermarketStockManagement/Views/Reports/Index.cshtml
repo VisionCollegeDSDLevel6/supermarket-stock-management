@@ -1,0 +1,293 @@
+﻿@model SupermarketStockManagement.Models.InventoryReportViewModel
+
+@{
+    ViewData["Title"] = "Inventory Report";
+}
+
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Inventory Report</h1>
+
+        <p class="page-subtitle">
+            View overall stock levels and inventory value.
+        </p>
+    </div>
+
+    <button type="button"
+            class="btn btn-primary"
+            onclick="window.print()">
+        Print Report
+    </button>
+</div>
+
+
+<!-- Report summary -->
+<div class="row g-4 mb-4">
+
+    <div class="col-md-6 col-xl">
+        <div class="content-card">
+            <div class="content-card-body">
+                <span class="details-label">
+                    Total Products
+                </span>
+
+                <h2 class="mt-2 mb-0">
+                    @Model.TotalProducts
+                </h2>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-md-6 col-xl">
+        <div class="content-card">
+            <div class="content-card-body">
+                <span class="details-label">
+                    Total Stock
+                </span>
+
+                <h2 class="mt-2 mb-0">
+                    @Model.TotalStockQuantity
+                </h2>
+
+                <span class="text-muted">units</span>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-md-6 col-xl">
+        <div class="content-card">
+            <div class="content-card-body">
+                <span class="details-label">
+                    Low Stock
+                </span>
+
+                <h2 class="mt-2 mb-0">
+                    @Model.LowStockProducts
+                </h2>
+
+                <span class="stock-status stock-low">
+                    Needs attention
+                </span>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-md-6 col-xl">
+        <div class="content-card">
+            <div class="content-card-body">
+                <span class="details-label">
+                    Out of Stock
+                </span>
+
+                <h2 class="mt-2 mb-0">
+                    @Model.OutOfStockProducts
+                </h2>
+
+                <span class="stock-status stock-empty">
+                    Unavailable
+                </span>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-md-6 col-xl">
+        <div class="content-card">
+            <div class="content-card-body">
+                <span class="details-label">
+                    Inventory Value
+                </span>
+
+                <h2 class="mt-2 mb-0">
+                    @Model.TotalInventoryValue.ToString("C")
+                </h2>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- Inventory table -->
+<div class="content-card">
+
+    <div class="content-card-header">
+        <div>
+            <h2 class="content-card-title">
+                Complete Inventory
+            </h2>
+
+            <p class="card-subtitle">
+                @Model.StockItems.Count stock records included
+            </p>
+        </div>
+    </div>
+
+
+    <div class="table-responsive">
+        <table class="table">
+
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Unit Price</th>
+                    <th>Quantity</th>
+                    <th>Threshold</th>
+                    <th>Status</th>
+                    <th>Stock Value</th>
+                    <th class="text-end">Action</th>
+                </tr>
+            </thead>
+
+
+            <tbody>
+                @if (Model.StockItems.Any())
+                {
+                    foreach (var item in Model.StockItems)
+                    {
+                        var productName =
+                            item.Product?.Name ?? "Unknown";
+
+                        var categoryName =
+                            item.Product?.Category?.Name ??
+                            "Uncategorised";
+
+                        var unitPrice =
+                            item.Product?.Price ?? 0;
+
+                        var stockValue =
+                            unitPrice * item.Quantity;
+
+                        var isOutOfStock =
+                            item.Quantity == 0;
+
+                        var isLowStock =
+                            item.Quantity > 0 &&
+                            item.Quantity <=
+                            item.LowStockThreshold;
+
+
+                        <tr>
+                            <td>
+                                <div class="product-cell">
+                                    <div class="stock-avatar">
+                                        @(productName
+                                            .Substring(0, 1)
+                                            .ToUpper())
+                                    </div>
+
+                                    <div>
+                                        <strong>@productName</strong>
+
+                                        <small>
+                                            Product ID:
+                                            @item.ProductId
+                                        </small>
+                                    </div>
+                                </div>
+                            </td>
+
+
+                            <td>
+                                <span class="category-badge">
+                                    @categoryName
+                                </span>
+                            </td>
+
+
+                            <td>
+                                @unitPrice.ToString("C")
+                            </td>
+
+
+                            <td>
+                                <strong class="stock-quantity">
+                                    @item.Quantity
+                                </strong>
+
+                                <span class="text-muted">
+                                    units
+                                </span>
+                            </td>
+
+
+                            <td>
+                                @item.LowStockThreshold units
+                            </td>
+
+
+                            <td>
+                                @if (isOutOfStock)
+                                {
+                                    <span class="stock-status stock-empty">
+                                        Out of stock
+                                    </span>
+                                }
+                                else if (isLowStock)
+                                {
+                                    <span class="stock-status stock-low">
+                                        Low stock
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="stock-status stock-good">
+                                        In stock
+                                    </span>
+                                }
+                            </td>
+
+
+                            <td>
+                                <strong>
+                                    @stockValue.ToString("C")
+                                </strong>
+                            </td>
+
+
+                            <td class="text-end">
+                                <a asp-controller="Stocks"
+                                   asp-action="Details"
+                                   asp-route-id="@item.StockId"
+                                   class="action-button details-action">
+                                    View
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="8"
+                            class="empty-products">
+
+                            <div class="empty-products-icon">
+                                ▥
+                            </div>
+
+                            <h3>No stock data found</h3>
+
+                            <p>
+                                Add stock records before generating
+                                an inventory report.
+                            </p>
+
+                            <a asp-controller="Stocks"
+                               asp-action="Create"
+                               class="btn btn-primary">
+                                + Add Stock
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+    </div>
+</div>

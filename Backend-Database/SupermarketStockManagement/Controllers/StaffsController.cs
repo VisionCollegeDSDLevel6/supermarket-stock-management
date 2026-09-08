@@ -6,11 +6,15 @@ using SupermarketStockManagement.Data;
 using SupermarketStockManagement.Models;
 using SupermarketStockManagement.ViewModels;
 
+
 [Authorize(Roles = "Admin,Manager")]
 public class StaffsController : Controller
 {
     private readonly ApplicationDbContext _context;
-    private readonly UserManager<IdentityUser> _userManager;
+
+    private readonly UserManager<IdentityUser>
+        _userManager;
+
 
     public StaffsController(
         ApplicationDbContext context,
@@ -20,10 +24,12 @@ public class StaffsController : Controller
         _userManager = userManager;
     }
 
+
     // GET: Staffs
     public async Task<IActionResult> Index()
     {
         var query = _context.Staff.AsQueryable();
+
 
         // Managers can only view Staff accounts
         if (User.IsInRole("Manager"))
@@ -32,12 +38,16 @@ public class StaffsController : Controller
                 staff.Role == "Staff");
         }
 
+
         var staffList = await query
             .OrderBy(staff => staff.Name)
             .ToListAsync();
 
+
         return View(staffList);
     }
+
+
     // GET: Staffs/Details/5
     public async Task<IActionResult> Details(int? id)
     {
@@ -46,14 +56,17 @@ public class StaffsController : Controller
             return NotFound();
         }
 
+
         var staff = await _context.Staff
             .FirstOrDefaultAsync(staff =>
                 staff.StaffId == id);
+
 
         if (staff == null)
         {
             return NotFound();
         }
+
 
         // Managers cannot view another Manager account
         if (User.IsInRole("Manager") &&
@@ -62,14 +75,19 @@ public class StaffsController : Controller
             return Forbid();
         }
 
+
         return View(staff);
     }
+
 
     // GET: Staffs/Create
     public IActionResult Create()
     {
-        return View(new StaffCreateViewModel());
+        return View(
+            new StaffCreateViewModel()
+        );
     }
+
 
     // POST: Staffs/Create
     [HttpPost]
@@ -83,36 +101,50 @@ public class StaffsController : Controller
         {
             ModelState.AddModelError(
                 nameof(model.Role),
-                "Managers can only create Staff accounts.");
+                "Managers can only create Staff accounts."
+            );
         }
 
+
         var existingStaff = await _context.Staff
-            .AnyAsync(staff => staff.Email == model.Email);
+            .AnyAsync(staff =>
+                staff.Email == model.Email);
+
 
         if (existingStaff)
         {
             ModelState.AddModelError(
                 nameof(model.Email),
-                "A staff account with this email already exists.");
+                "A staff account with this email already exists."
+            );
         }
 
+
         var existingIdentityUser =
-            await _userManager.FindByEmailAsync(model.Email);
+            await _userManager.FindByEmailAsync(
+                model.Email
+            );
+
 
         if (existingIdentityUser != null)
         {
             ModelState.AddModelError(
                 nameof(model.Email),
-                "A login account with this email already exists.");
+                "A login account with this email already exists."
+            );
         }
+
 
         if (!ModelState.IsValid)
         {
             return View(model);
         }
 
+
         await using var transaction =
-            await _context.Database.BeginTransactionAsync();
+            await _context.Database
+                .BeginTransactionAsync();
+
 
         try
         {
@@ -123,10 +155,13 @@ public class StaffsController : Controller
                 EmailConfirmed = true
             };
 
+
             var createUserResult =
                 await _userManager.CreateAsync(
                     identityUser,
-                    model.Password);
+                    model.Password
+                );
+
 
             if (!createUserResult.Succeeded)
             {
@@ -137,10 +172,13 @@ public class StaffsController : Controller
                 return View(model);
             }
 
+
             var addRoleResult =
                 await _userManager.AddToRoleAsync(
                     identityUser,
-                    model.Role);
+                    model.Role
+                );
+
 
             if (!addRoleResult.Succeeded)
             {
@@ -151,6 +189,7 @@ public class StaffsController : Controller
                 return View(model);
             }
 
+
             var staff = new Staff
             {
                 IdentityUserId = identityUser.Id,
@@ -159,13 +198,17 @@ public class StaffsController : Controller
                 Role = model.Role
             };
 
+
             _context.Staff.Add(staff);
 
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
 
+
             TempData["SuccessMessage"] =
-                "The staff account was created successfully.";
+                $"Staff account '{model.Name}' " +
+                "was created successfully.";
+
 
             return RedirectToAction(nameof(Index));
         }
@@ -173,13 +216,17 @@ public class StaffsController : Controller
         {
             await transaction.RollbackAsync();
 
+
             ModelState.AddModelError(
                 string.Empty,
-                "The staff account could not be created.");
+                "The staff account could not be created."
+            );
+
 
             return View(model);
         }
     }
+
 
     // GET: Staffs/Edit/5
     public async Task<IActionResult> Edit(int? id)
@@ -189,12 +236,16 @@ public class StaffsController : Controller
             return NotFound();
         }
 
-        var staff = await _context.Staff.FindAsync(id);
+
+        var staff =
+            await _context.Staff.FindAsync(id);
+
 
         if (staff == null)
         {
             return NotFound();
         }
+
 
         // Managers can only edit Staff accounts
         if (User.IsInRole("Manager") &&
@@ -202,6 +253,7 @@ public class StaffsController : Controller
         {
             return Forbid();
         }
+
 
         var model = new StaffEditViewModel
         {
@@ -212,8 +264,10 @@ public class StaffsController : Controller
             Role = staff.Role
         };
 
+
         return View(model);
     }
+
 
     // POST: Staffs/Edit/5
     [HttpPost]
@@ -227,12 +281,16 @@ public class StaffsController : Controller
             return NotFound();
         }
 
-        var staff = await _context.Staff.FindAsync(id);
+
+        var staff =
+            await _context.Staff.FindAsync(id);
+
 
         if (staff == null)
         {
             return NotFound();
         }
+
 
         // Managers can only edit Staff accounts
         if (User.IsInRole("Manager") &&
@@ -242,48 +300,73 @@ public class StaffsController : Controller
             return Forbid();
         }
 
+
         var identityUser =
             await FindIdentityUserAsync(staff);
 
-        // Existing Staff rows may not have a linked Identity account
+
+        // Existing Staff rows may not have
+        // a linked Identity account
         if (identityUser == null &&
-            string.IsNullOrWhiteSpace(model.NewPassword))
+            string.IsNullOrWhiteSpace(
+                model.NewPassword))
         {
             ModelState.AddModelError(
                 nameof(model.NewPassword),
-                "Enter a password to create a login account for this staff member.");
+                "Enter a password to create a login " +
+                "account for this staff member."
+            );
         }
 
-        var duplicateStaffEmail = await _context.Staff
-            .AnyAsync(existingStaff =>
-                existingStaff.Email == model.Email &&
-                existingStaff.StaffId != model.StaffId);
+
+        var duplicateStaffEmail =
+            await _context.Staff.AnyAsync(
+                existingStaff =>
+                    existingStaff.Email ==
+                    model.Email &&
+
+                    existingStaff.StaffId !=
+                    model.StaffId
+            );
+
 
         if (duplicateStaffEmail)
         {
             ModelState.AddModelError(
                 nameof(model.Email),
-                "Another staff account already uses this email.");
+                "Another staff account already uses " +
+                "this email."
+            );
         }
 
+
         var userWithEmail =
-            await _userManager.FindByEmailAsync(model.Email);
+            await _userManager.FindByEmailAsync(
+                model.Email
+            );
+
 
         if (userWithEmail != null &&
             userWithEmail.Id != identityUser?.Id)
         {
             ModelState.AddModelError(
                 nameof(model.Email),
-                "Another login account already uses this email.");
+                "Another login account already uses " +
+                "this email."
+            );
         }
+
 
         if (!ModelState.IsValid)
         {
             return View(model);
         }
 
+
         await using var transaction =
-            await _context.Database.BeginTransactionAsync();
+            await _context.Database
+                .BeginTransactionAsync();
+
 
         try
         {
@@ -296,42 +379,56 @@ public class StaffsController : Controller
                     EmailConfirmed = true
                 };
 
+
                 var createUserResult =
                     await _userManager.CreateAsync(
                         identityUser,
-                        model.NewPassword!);
+                        model.NewPassword!
+                    );
+
 
                 if (!createUserResult.Succeeded)
                 {
-                    AddIdentityErrors(createUserResult);
+                    AddIdentityErrors(
+                        createUserResult
+                    );
 
                     await transaction.RollbackAsync();
 
                     return View(model);
                 }
+
 
                 var addRoleResult =
                     await _userManager.AddToRoleAsync(
                         identityUser,
-                        model.Role);
+                        model.Role
+                    );
+
 
                 if (!addRoleResult.Succeeded)
                 {
-                    AddIdentityErrors(addRoleResult);
+                    AddIdentityErrors(
+                        addRoleResult
+                    );
 
                     await transaction.RollbackAsync();
 
                     return View(model);
                 }
 
-                staff.IdentityUserId = identityUser.Id;
+
+                staff.IdentityUserId =
+                    identityUser.Id;
             }
             else
             {
                 var emailResult =
                     await _userManager.SetEmailAsync(
                         identityUser,
-                        model.Email);
+                        model.Email
+                    );
+
 
                 if (!emailResult.Succeeded)
                 {
@@ -342,10 +439,13 @@ public class StaffsController : Controller
                     return View(model);
                 }
 
+
                 var userNameResult =
                     await _userManager.SetUserNameAsync(
                         identityUser,
-                        model.Email);
+                        model.Email
+                    );
+
 
                 if (!userNameResult.Succeeded)
                 {
@@ -356,43 +456,59 @@ public class StaffsController : Controller
                     return View(model);
                 }
 
+
                 var currentRoles =
                     await _userManager.GetRolesAsync(
-                        identityUser);
+                        identityUser
+                    );
+
 
                 if (!currentRoles.Contains(model.Role))
                 {
                     if (currentRoles.Count > 0)
                     {
                         var removeRolesResult =
-                            await _userManager.RemoveFromRolesAsync(
-                                identityUser,
-                                currentRoles);
+                            await _userManager
+                                .RemoveFromRolesAsync(
+                                    identityUser,
+                                    currentRoles
+                                );
+
 
                         if (!removeRolesResult.Succeeded)
                         {
-                            AddIdentityErrors(removeRolesResult);
+                            AddIdentityErrors(
+                                removeRolesResult
+                            );
 
-                            await transaction.RollbackAsync();
+                            await transaction
+                                .RollbackAsync();
 
                             return View(model);
                         }
                     }
 
+
                     var addRoleResult =
-                        await _userManager.AddToRoleAsync(
-                            identityUser,
-                            model.Role);
+                        await _userManager
+                            .AddToRoleAsync(
+                                identityUser,
+                                model.Role
+                            );
+
 
                     if (!addRoleResult.Succeeded)
                     {
-                        AddIdentityErrors(addRoleResult);
+                        AddIdentityErrors(
+                            addRoleResult
+                        );
 
                         await transaction.RollbackAsync();
 
                         return View(model);
                     }
                 }
+
 
                 if (!string.IsNullOrWhiteSpace(
                         model.NewPassword))
@@ -400,17 +516,23 @@ public class StaffsController : Controller
                     var passwordToken =
                         await _userManager
                             .GeneratePasswordResetTokenAsync(
-                                identityUser);
+                                identityUser
+                            );
+
 
                     var passwordResult =
                         await _userManager.ResetPasswordAsync(
                             identityUser,
                             passwordToken,
-                            model.NewPassword);
+                            model.NewPassword
+                        );
+
 
                     if (!passwordResult.Succeeded)
                     {
-                        AddIdentityErrors(passwordResult);
+                        AddIdentityErrors(
+                            passwordResult
+                        );
 
                         await transaction.RollbackAsync();
 
@@ -419,15 +541,20 @@ public class StaffsController : Controller
                 }
             }
 
+
             staff.Name = model.Name;
             staff.Email = model.Email;
             staff.Role = model.Role;
 
+
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
 
+
             TempData["SuccessMessage"] =
-                "The staff account was updated successfully.";
+                $"Staff account '{model.Name}' " +
+                "was updated successfully.";
+
 
             return RedirectToAction(nameof(Index));
         }
@@ -435,10 +562,12 @@ public class StaffsController : Controller
         {
             await transaction.RollbackAsync();
 
+
             if (!StaffExists(model.StaffId))
             {
                 return NotFound();
             }
+
 
             throw;
         }
@@ -446,13 +575,17 @@ public class StaffsController : Controller
         {
             await transaction.RollbackAsync();
 
+
             ModelState.AddModelError(
                 string.Empty,
-                "The staff account could not be updated.");
+                "The staff account could not be updated."
+            );
+
 
             return View(model);
         }
     }
+
 
     // GET: Staffs/Delete/5
     public async Task<IActionResult> Delete(int? id)
@@ -462,36 +595,48 @@ public class StaffsController : Controller
             return NotFound();
         }
 
+
         var staff = await _context.Staff
             .FirstOrDefaultAsync(staff =>
                 staff.StaffId == id);
+
 
         if (staff == null)
         {
             return NotFound();
         }
 
+
         // Managers can only delete Staff accounts
         if (User.IsInRole("Manager") &&
             staff.Role != "Staff")
         {
             return Forbid();
         }
+
 
         return View(staff);
     }
 
+
     // POST: Staffs/Delete/5
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int id)
+    public async Task<IActionResult> DeleteConfirmed(
+        int id)
     {
-        var staff = await _context.Staff.FindAsync(id);
+        var staff =
+            await _context.Staff.FindAsync(id);
+
 
         if (staff == null)
         {
+            TempData["ErrorMessage"] =
+                "The staff account could not be found.";
+
             return RedirectToAction(nameof(Index));
         }
+
 
         // Managers can only delete Staff accounts
         if (User.IsInRole("Manager") &&
@@ -500,11 +645,17 @@ public class StaffsController : Controller
             return Forbid();
         }
 
+
+        var staffName = staff.Name;
+
         var identityUser =
             await FindIdentityUserAsync(staff);
 
+
         await using var transaction =
-            await _context.Database.BeginTransactionAsync();
+            await _context.Database
+                .BeginTransactionAsync();
+
 
         try
         {
@@ -512,48 +663,63 @@ public class StaffsController : Controller
             {
                 var deleteUserResult =
                     await _userManager.DeleteAsync(
-                        identityUser);
+                        identityUser
+                    );
+
 
                 if (!deleteUserResult.Succeeded)
                 {
                     TempData["ErrorMessage"] =
-                        "The login account could not be deleted.";
+                        "The login account could not " +
+                        "be deleted.";
 
                     await transaction.RollbackAsync();
 
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction(
+                        nameof(Index)
+                    );
                 }
             }
+
 
             _context.Staff.Remove(staff);
 
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
 
+
             TempData["SuccessMessage"] =
-                "The staff account was deleted successfully.";
+                $"Staff account '{staffName}' " +
+                "was deleted successfully.";
         }
         catch (Exception)
         {
             await transaction.RollbackAsync();
 
+
             TempData["ErrorMessage"] =
-                "The staff account could not be deleted.";
+                $"Staff account '{staffName}' " +
+                "could not be deleted.";
         }
+
 
         return RedirectToAction(nameof(Index));
     }
 
-    // Finds the Identity account linked to a Staff record
-    private async Task<IdentityUser?> FindIdentityUserAsync(
-        Staff staff)
+
+    // Finds the Identity account linked
+    // to a Staff record
+    private async Task<IdentityUser?>
+        FindIdentityUserAsync(Staff staff)
     {
         if (!string.IsNullOrWhiteSpace(
                 staff.IdentityUserId))
         {
             var userById =
                 await _userManager.FindByIdAsync(
-                    staff.IdentityUserId);
+                    staff.IdentityUserId
+                );
+
 
             if (userById != null)
             {
@@ -561,9 +727,12 @@ public class StaffsController : Controller
             }
         }
 
+
         return await _userManager.FindByEmailAsync(
-            staff.Email);
+            staff.Email
+        );
     }
+
 
     // Adds Identity validation errors to ModelState
     private void AddIdentityErrors(
@@ -573,9 +742,11 @@ public class StaffsController : Controller
         {
             ModelState.AddModelError(
                 string.Empty,
-                error.Description);
+                error.Description
+            );
         }
     }
+
 
     private bool StaffExists(int id)
     {

@@ -32,7 +32,48 @@
         </a>
     </div>
 </div>
+<div class="content-card mb-4">
+    <div class="content-card-body">
 
+        <form asp-action="Index"
+              method="get"
+              class="row g-3 align-items-end">
+
+            <div class="col-md-9">
+                <label for="searchTerm"
+                       class="form-label">
+                    Search Stock
+                </label>
+
+                <input type="search"
+                       id="searchTerm"
+                       name="searchTerm"
+                       value="@ViewData["SearchTerm"]"
+                       class="form-control"
+                       placeholder="Search by product name..." />
+            </div>
+
+
+            <div class="col-md-3">
+                <div class="d-flex gap-2">
+
+                    <button type="submit"
+                            class="btn btn-primary flex-fill">
+                        Search
+                    </button>
+
+                    <a asp-action="Index"
+                       class="btn btn-secondary">
+                        Clear
+                    </a>
+
+                </div>
+            </div>
+
+        </form>
+
+    </div>
+</div>
 <div class="content-card">
     <div class="content-card-header">
         <div>

@@ -1,23 +1,27 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using SupermarketStockManagement.Models;
-using SupermarketStockManagement.Data;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using SupermarketStockManagement.Data;
+using SupermarketStockManagement.Models;
+
 
 [Authorize(Roles = "Admin,Manager,Staff")]
 public class ProductsController : Controller
 {
     private readonly ApplicationDbContext _context;
 
-    public ProductsController(ApplicationDbContext context)
+
+    public ProductsController(
+        ApplicationDbContext context)
     {
         _context = context;
     }
 
-    // GET: PRODUCTS
 
-    // Display products with optional name search and category filter
+    // GET: Products
+    // Display products with optional name search
+    // and category filter
     public async Task<IActionResult> Index(
         string? searchTerm,
         int? categoryId)
@@ -26,6 +30,7 @@ public class ProductsController : Controller
             .Include(product => product.Category)
             .Include(product => product.Stock)
             .AsQueryable();
+
 
         // Search products by name
         if (!string.IsNullOrWhiteSpace(searchTerm))
@@ -36,6 +41,7 @@ public class ProductsController : Controller
                 product.Name.Contains(searchTerm));
         }
 
+
         // Filter products by category
         if (categoryId.HasValue)
         {
@@ -43,8 +49,10 @@ public class ProductsController : Controller
                 product.CategoryId == categoryId.Value);
         }
 
-        // Preserve the current search value in the view
+
+        // Preserve the current search value
         ViewData["SearchTerm"] = searchTerm;
+
 
         // Load categories for the filter dropdown
         ViewData["CategoryId"] = new SelectList(
@@ -56,15 +64,17 @@ public class ProductsController : Controller
             categoryId
         );
 
+
         var products = await productsQuery
             .OrderBy(product => product.Name)
             .ToListAsync();
 
+
         return View(products);
     }
 
-    // GET: PRODUCTS/Details/5
 
+    // GET: Products/Details/5
     public async Task<IActionResult> Details(int? id)
     {
         if (id == null)
@@ -72,50 +82,68 @@ public class ProductsController : Controller
             return NotFound();
         }
 
+
         var product = await _context.Products
             .Include(product => product.Category)
             .Include(product => product.Stock)
             .FirstOrDefaultAsync(product =>
                 product.ProductId == id);
 
+
         if (product == null)
         {
             return NotFound();
         }
 
+
         return View(product);
     }
 
-    // GET: PRODUCTS/Create
+
     // GET: Products/Create
-    public IActionResult Create()
+    public async Task<IActionResult> Create()
     {
-        ViewData["CategoryId"] = new SelectList(
-            _context.Categories,
-            "CategoryId",
-            "Name"
-        );
+        await LoadCategories();
 
         return View();
     }
 
-    // POST: PRODUCTS/Create
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+
+    // POST: Products/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("ProductId,Name,Description,Price,ImageUrl,CategoryId,Category,Stock,StockHistories")] Product product)
+    public async Task<IActionResult> Create(
+        [Bind(
+            "ProductId," +
+            "Name," +
+            "Description," +
+            "Price," +
+            "ImageUrl," +
+            "CategoryId")]
+        Product product)
     {
         if (ModelState.IsValid)
         {
-            _context.Add(product);
+            _context.Products.Add(product);
+
             await _context.SaveChangesAsync();
+
+
+            TempData["SuccessMessage"] =
+                $"Product '{product.Name}' was created successfully.";
+
+
             return RedirectToAction(nameof(Index));
         }
+
+
+        await LoadCategories(product.CategoryId);
+
         return View(product);
     }
 
-    // GET: PRODUCTS/Edit/5
+
+    // GET: Products/Edit/5
     public async Task<IActionResult> Edit(int? id)
     {
         if (id == null)
@@ -123,41 +151,53 @@ public class ProductsController : Controller
             return NotFound();
         }
 
+
         var product = await _context.Products.FindAsync(id);
+
 
         if (product == null)
         {
             return NotFound();
         }
 
-        ViewData["CategoryId"] = new SelectList(
-            _context.Categories,
-            "CategoryId",
-            "Name",
-            product.CategoryId
-        );
+
+        await LoadCategories(product.CategoryId);
 
         return View(product);
     }
 
-    // POST: PRODUCTS/Edit/5
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+
+    // POST: Products/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? productid, [Bind("ProductId,Name,Description,Price,ImageUrl,CategoryId,Category,Stock,StockHistories")] Product product)
+    public async Task<IActionResult> Edit(
+        int? productid,
+        [Bind(
+            "ProductId," +
+            "Name," +
+            "Description," +
+            "Price," +
+            "ImageUrl," +
+            "CategoryId")]
+        Product product)
     {
         if (productid != product.ProductId)
         {
             return NotFound();
         }
 
+
         if (ModelState.IsValid)
         {
             try
             {
-                _context.Update(product);
+                _context.Products.Update(product);
+
                 await _context.SaveChangesAsync();
+
+
+                TempData["SuccessMessage"] =
+                    $"Product '{product.Name}' was updated successfully.";
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -165,15 +205,20 @@ public class ProductsController : Controller
                 {
                     return NotFound();
                 }
-                else
-                {
-                    throw;
-                }
+
+                throw;
             }
+
+
             return RedirectToAction(nameof(Index));
         }
+
+
+        await LoadCategories(product.CategoryId);
+
         return View(product);
     }
+
 
     // GET: Products/Delete/5
     public async Task<IActionResult> Delete(int? id)
@@ -183,16 +228,19 @@ public class ProductsController : Controller
             return NotFound();
         }
 
+
         var product = await _context.Products
             .Include(product => product.Category)
             .Include(product => product.Stock)
             .FirstOrDefaultAsync(product =>
                 product.ProductId == id);
 
+
         if (product == null)
         {
             return NotFound();
         }
+
 
         return View(product);
     }
@@ -201,23 +249,58 @@ public class ProductsController : Controller
     // POST: Products/Delete/5
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int id)
+    public async Task<IActionResult> DeleteConfirmed(
+        int id)
     {
-        var product = await _context.Products
-            .FindAsync(id);
+        var product = await _context.Products.FindAsync(id);
 
-        if (product != null)
+
+        if (product == null)
         {
-            _context.Products.Remove(product);
-            await _context.SaveChangesAsync();
+            TempData["ErrorMessage"] =
+                "The product could not be found.";
+
+            return RedirectToAction(nameof(Index));
         }
+
+
+        var productName = product.Name;
+
+
+        _context.Products.Remove(product);
+
+        await _context.SaveChangesAsync();
+
+
+        TempData["SuccessMessage"] =
+            $"Product '{productName}' was deleted successfully.";
+
 
         return RedirectToAction(nameof(Index));
     }
+
+
+    // Load categories for Create and Edit forms
+    private async Task LoadCategories(
+        int? selectedCategoryId = null)
+    {
+        var categories = await _context.Categories
+            .OrderBy(category => category.Name)
+            .ToListAsync();
+
+
+        ViewData["CategoryId"] = new SelectList(
+            categories,
+            "CategoryId",
+            "Name",
+            selectedCategoryId
+        );
+    }
+
+
     private bool ProductExists(int id)
     {
-        return _context.Products.Any(
-            product => product.ProductId == id
-        );
+        return _context.Products.Any(product =>
+            product.ProductId == id);
     }
 }

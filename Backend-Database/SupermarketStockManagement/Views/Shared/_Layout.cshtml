@@ -36,6 +36,7 @@
 
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
+
 <head>
     <meta charset="utf-8" />
 
@@ -45,16 +46,16 @@
     <title>@ViewData["Title"] - StockFlow</title>
 
     <script>
-            // Apply the saved theme before the page renders
-            const savedTheme =
-                localStorage.getItem("stockflow-theme");
+        // Apply the saved theme before the page renders
+        const savedTheme =
+            localStorage.getItem("stockflow-theme");
 
-            if (savedTheme) {
-                document.documentElement.setAttribute(
-                    "data-theme",
-                    savedTheme
-                );
-            }
+        if (savedTheme) {
+            document.documentElement.setAttribute(
+                "data-theme",
+                savedTheme
+            );
+        }
     </script>
 
     <link rel="stylesheet"
@@ -111,12 +112,17 @@
                 </a>
             </div>
 
+
             <nav class="sidebar-navigation">
                 @if (isLoggedIn)
                 {
                     <!-- Main menu -->
-                    <p class="navigation-title">MAIN MENU</p>
+                    <p class="navigation-title">
+                        MAIN MENU
+                    </p>
 
+
+                    <!-- Dashboard -->
                     <a asp-controller="Home"
                        asp-action="Index"
                        class="sidebar-link">
@@ -164,10 +170,12 @@
                         <span>Dashboard</span>
                     </a>
 
+
                     <!-- Management -->
                     <p class="navigation-title navigation-spacing">
                         MANAGEMENT
                     </p>
+
 
                     <!-- Categories -->
                     <a asp-controller="Categories"
@@ -201,6 +209,7 @@
                         <span>Categories</span>
                     </a>
 
+
                     <!-- Products -->
                     <a asp-controller="Products"
                        asp-action="Index"
@@ -230,6 +239,7 @@
 
                         <span>Products</span>
                     </a>
+
 
                     <!-- Stock -->
                     <a asp-controller="Stocks"
@@ -267,6 +277,7 @@
                         <span>Stock</span>
                     </a>
 
+
                     @if (User.IsInRole("Admin") ||
                          User.IsInRole("Manager"))
                     {
@@ -296,9 +307,47 @@
 
                             <span>Staff</span>
                         </a>
+
+
+                        <!-- Inventory Report -->
+                        <a asp-controller="Reports"
+                           asp-action="Index"
+                           class="sidebar-link">
+
+                            <span class="sidebar-icon">
+                                <svg viewBox="0 0 24 24"
+                                     width="20"
+                                     height="20"
+                                     fill="none">
+
+                                    <path d="M4 20V11"
+                                          stroke="currentColor"
+                                          stroke-width="2"
+                                          stroke-linecap="round" />
+
+                                    <path d="M10 20V5"
+                                          stroke="currentColor"
+                                          stroke-width="2"
+                                          stroke-linecap="round" />
+
+                                    <path d="M16 20V14"
+                                          stroke="currentColor"
+                                          stroke-width="2"
+                                          stroke-linecap="round" />
+
+                                    <path d="M2 20H22"
+                                          stroke="currentColor"
+                                          stroke-width="2"
+                                          stroke-linecap="round" />
+                                </svg>
+                            </span>
+
+                            <span>Inventory Report</span>
+                        </a>
                     }
                 }
             </nav>
+
 
             <div class="sidebar-footer">
                 <div class="system-status">
@@ -311,6 +360,7 @@
                 </div>
             </div>
         </aside>
+
 
         <!-- Main area -->
         <div class="app-main">
@@ -337,28 +387,10 @@
                         </svg>
                     </button>
 
-                    <div class="topbar-search">
-                        <svg viewBox="0 0 24 24"
-                             width="19"
-                             height="19"
-                             fill="none">
 
-                            <circle cx="11"
-                                    cy="11"
-                                    r="7"
-                                    stroke="currentColor"
-                                    stroke-width="2" />
-
-                            <path d="M16 16L21 21"
-                                  stroke="currentColor"
-                                  stroke-width="2"
-                                  stroke-linecap="round" />
-                        </svg>
-
-                        <input type="search"
-                               placeholder="Search inventory..." />
-                    </div>
+                  
                 </div>
+
 
                 <div class="topbar-actions">
 
@@ -405,6 +437,7 @@
                         </span>
                     </button>
 
+
                     <!-- User account section -->
                     <div class="user-section">
 
@@ -422,9 +455,9 @@
                             <form asp-area="Identity"
                                   asp-page="/Account/Logout"
                                   asp-route-returnUrl="@Url.Action(
-                                                                      "Index",
-                                                                      "Home",
-                                                                      new { area = "" })"
+                                      "Index",
+                                      "Home",
+                                      new { area = "" })"
                                   method="post"
                                   class="m-0">
 
@@ -447,10 +480,45 @@
                 </div>
             </header>
 
+
             <!-- Page content -->
             <main class="page-content">
-                @RenderBody()
-            </main>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show"
+             role="alert">
+
+            <strong>Success!</strong>
+            @TempData["SuccessMessage"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close">
+            </button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show"
+             role="alert">
+
+            <strong>Error!</strong>
+            @TempData["ErrorMessage"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close">
+            </button>
+        </div>
+    }
+
+    @RenderBody()
+</main>
+
 
             <footer class="dashboard-footer">
                 <span>© 2026 StockFlow</span>
@@ -462,9 +530,11 @@
         </div>
     </div>
 
+
     <div class="sidebar-overlay"
          id="sidebarOverlay">
     </div>
+
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
 
@@ -476,4 +546,5 @@
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
+
 </html>

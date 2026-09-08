@@ -5,23 +5,47 @@ using Microsoft.EntityFrameworkCore;
 using SupermarketStockManagement.Data;
 using SupermarketStockManagement.Models;
 
+
 [Authorize(Roles = "Admin,Manager,Staff")]
 public class StocksController : Controller
 {
     private readonly ApplicationDbContext _context;
 
-    public StocksController(ApplicationDbContext context)
+
+    public StocksController(
+        ApplicationDbContext context)
     {
         _context = context;
     }
 
+
     // GET: Stocks
-    public async Task<IActionResult> Index()
+    // Search stock records by product name
+    public async Task<IActionResult> Index(
+        string? searchTerm)
     {
-        var stocks = await _context.Stocks
+        var stocksQuery = _context.Stocks
             .Include(stock => stock.Product)
+            .AsQueryable();
+
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            searchTerm = searchTerm.Trim();
+
+            stocksQuery = stocksQuery.Where(stock =>
+                stock.Product != null &&
+                stock.Product.Name.Contains(searchTerm));
+        }
+
+
+        ViewData["SearchTerm"] = searchTerm;
+
+
+        var stocks = await stocksQuery
             .OrderBy(stock => stock.Product!.Name)
             .ToListAsync();
+
 
         return View(stocks);
     }
@@ -34,18 +58,22 @@ public class StocksController : Controller
             return NotFound();
         }
 
+
         var stock = await _context.Stocks
             .Include(item => item.Product)
             .FirstOrDefaultAsync(item =>
                 item.StockId == id);
+
 
         if (stock == null)
         {
             return NotFound();
         }
 
+
         return View(stock);
     }
+
 
     // GET: Stocks/History
     // Only Admin and Manager can view stock history
@@ -58,8 +86,10 @@ public class StocksController : Controller
                 item.ChangeDate)
             .ToListAsync();
 
+
         return View(history);
     }
+
 
     // GET: Stocks/Create
     public async Task<IActionResult> Create()
@@ -69,16 +99,22 @@ public class StocksController : Controller
         return View();
     }
 
+
     // POST: Stocks/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(
-        [Bind("StockId,ProductId,Quantity,LowStockThreshold")]
+        [Bind(
+            "StockId," +
+            "ProductId," +
+            "Quantity," +
+            "LowStockThreshold")]
         Stock stock)
     {
         var stockAlreadyExists =
             await _context.Stocks.AnyAsync(existing =>
                 existing.ProductId == stock.ProductId);
+
 
         if (stockAlreadyExists)
         {
@@ -88,6 +124,7 @@ public class StocksController : Controller
             );
         }
 
+
         if (stock.Quantity < 0)
         {
             ModelState.AddModelError(
@@ -95,6 +132,7 @@ public class StocksController : Controller
                 "Quantity cannot be negative."
             );
         }
+
 
         if (stock.LowStockThreshold < 0)
         {
@@ -104,19 +142,35 @@ public class StocksController : Controller
             );
         }
 
+
         if (ModelState.IsValid)
         {
+            var productName = await _context.Products
+                .Where(product =>
+                    product.ProductId == stock.ProductId)
+                .Select(product => product.Name)
+                .FirstOrDefaultAsync()
+                ?? "Unknown product";
+
+
             _context.Stocks.Add(stock);
 
             await _context.SaveChangesAsync();
 
+
+            TempData["SuccessMessage"] =
+                $"Stock for '{productName}' was created successfully.";
+
+
             return RedirectToAction(nameof(Index));
         }
+
 
         await LoadProducts(stock.ProductId);
 
         return View(stock);
     }
+
 
     // GET: Stocks/Edit/5
     public async Task<IActionResult> Edit(int? id)
@@ -126,21 +180,25 @@ public class StocksController : Controller
             return NotFound();
         }
 
-        var stock = await _context.Stocks
-            .FindAsync(id);
+
+        var stock = await _context.Stocks.FindAsync(id);
+
 
         if (stock == null)
         {
             return NotFound();
         }
 
+
         await LoadProducts(
             stock.ProductId,
             stock.StockId
         );
 
+
         return View(stock);
     }
+
 
     // POST: Stocks/Edit/5
     // Updates stock and records quantity changes
@@ -148,7 +206,11 @@ public class StocksController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(
         int id,
-        [Bind("StockId,ProductId,Quantity,LowStockThreshold")]
+        [Bind(
+            "StockId," +
+            "ProductId," +
+            "Quantity," +
+            "LowStockThreshold")]
         Stock stock)
     {
         if (id != stock.StockId)
@@ -156,19 +218,23 @@ public class StocksController : Controller
             return NotFound();
         }
 
+
         var existingStock = await _context.Stocks
             .FirstOrDefaultAsync(item =>
                 item.StockId == id);
+
 
         if (existingStock == null)
         {
             return NotFound();
         }
 
+
         var productUsedByAnotherStock =
             await _context.Stocks.AnyAsync(item =>
                 item.ProductId == stock.ProductId &&
                 item.StockId != stock.StockId);
+
 
         if (productUsedByAnotherStock)
         {
@@ -178,6 +244,7 @@ public class StocksController : Controller
             );
         }
 
+
         if (stock.Quantity < 0)
         {
             ModelState.AddModelError(
@@ -185,6 +252,7 @@ public class StocksController : Controller
                 "Quantity cannot be negative."
             );
         }
+
 
         if (stock.LowStockThreshold < 0)
         {
@@ -194,10 +262,12 @@ public class StocksController : Controller
             );
         }
 
+
         if (ModelState.IsValid)
         {
             var previousQuantity =
                 existingStock.Quantity;
+
 
             existingStock.ProductId =
                 stock.ProductId;
@@ -208,26 +278,50 @@ public class StocksController : Controller
             existingStock.LowStockThreshold =
                 stock.LowStockThreshold;
 
+
             // Save history only when quantity changes
             if (previousQuantity != stock.Quantity)
             {
                 var stockHistory = new StockHistory
                 {
                     ProductId = stock.ProductId,
-                    PreviousQuantity = previousQuantity,
-                    NewQuantity = stock.Quantity,
-                    ChangeDate = DateTime.Now,
+
+                    PreviousQuantity =
+                        previousQuantity,
+
+                    NewQuantity =
+                        stock.Quantity,
+
+                    ChangeDate =
+                        DateTime.Now,
+
                     ChangedBy =
                         User.Identity?.Name ?? "Unknown"
                 };
 
+
                 _context.StockHistories.Add(
-                    stockHistory);
+                    stockHistory
+                );
             }
+
 
             try
             {
                 await _context.SaveChangesAsync();
+
+
+                var productName = await _context.Products
+                    .Where(product =>
+                        product.ProductId ==
+                        existingStock.ProductId)
+                    .Select(product => product.Name)
+                    .FirstOrDefaultAsync()
+                    ?? "Unknown product";
+
+
+                TempData["SuccessMessage"] =
+                    $"Stock for '{productName}' was updated successfully.";
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -239,16 +333,20 @@ public class StocksController : Controller
                 throw;
             }
 
+
             return RedirectToAction(nameof(Index));
         }
+
 
         await LoadProducts(
             stock.ProductId,
             stock.StockId
         );
 
+
         return View(stock);
     }
+
 
     // GET: Stocks/Delete/5
     public async Task<IActionResult> Delete(int? id)
@@ -258,36 +356,60 @@ public class StocksController : Controller
             return NotFound();
         }
 
+
         var stock = await _context.Stocks
             .Include(item => item.Product)
             .FirstOrDefaultAsync(item =>
                 item.StockId == id);
+
 
         if (stock == null)
         {
             return NotFound();
         }
 
+
         return View(stock);
     }
+
 
     // POST: Stocks/Delete/5
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int id)
+    public async Task<IActionResult> DeleteConfirmed(
+        int id)
     {
         var stock = await _context.Stocks
-            .FindAsync(id);
+            .Include(item => item.Product)
+            .FirstOrDefaultAsync(item =>
+                item.StockId == id);
 
-        if (stock != null)
+
+        if (stock == null)
         {
-            _context.Stocks.Remove(stock);
+            TempData["ErrorMessage"] =
+                "The stock record could not be found.";
 
-            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
+
+
+        var productName =
+            stock.Product?.Name ?? "Unknown product";
+
+
+        _context.Stocks.Remove(stock);
+
+        await _context.SaveChangesAsync();
+
+
+        TempData["SuccessMessage"] =
+            $"Stock for '{productName}' was deleted successfully.";
+
 
         return RedirectToAction(nameof(Index));
     }
+
 
     // Loads products that do not already have a stock record
     private async Task LoadProducts(
@@ -299,14 +421,17 @@ public class StocksController : Controller
                 !_context.Stocks.Any(stock =>
                     stock.ProductId ==
                     product.ProductId) ||
+
                 _context.Stocks.Any(stock =>
                     stock.StockId ==
                     currentStockId &&
+
                     stock.ProductId ==
                     product.ProductId))
             .OrderBy(product =>
                 product.Name)
             .ToListAsync();
+
 
         ViewData["ProductId"] = new SelectList(
             products,
@@ -315,6 +440,7 @@ public class StocksController : Controller
             selectedProductId
         );
     }
+
 
     private bool StockExists(int id)
     {
