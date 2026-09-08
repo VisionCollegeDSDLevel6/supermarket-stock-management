@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Routes, Route, Link, useLocation } from 'react-router-dom'
 import ProductList from './components/ProductList'
 import ProductDetail from './components/ProductDetail'
+import CategoryList from './components/CategoryList'
 import './App.css'
 
 function App() {
@@ -27,6 +28,10 @@ function App() {
                 <Link className={`nav-link ${location.pathname.startsWith('/products') ? 'active' : ''}`} to="/products"
                   onClick={() => setMenuOpen(false)}>Products</Link>
               </li>
+              <li className="nav-item">
+                <Link className={`nav-link ${location.pathname.startsWith('/categories') ? 'active' : ''}`} to="/categories"
+                  onClick={() => setMenuOpen(false)}>Categories</Link>
+              </li>
             </ul>
           </div>
         </div>
@@ -37,6 +42,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/products" element={<ProductList />} />
           <Route path="/products/:id" element={<ProductDetail />} />
+          <Route path="/categories" element={<CategoryList />} />
         </Routes>
       </main>
 

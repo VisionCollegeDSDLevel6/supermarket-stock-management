@@ -8,6 +8,7 @@ function ProductList() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
   const [sortBy, setSortBy] = useState('name')
+  const [sortOrder, setSortOrder] = useState('asc')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -16,7 +17,7 @@ function ProductList() {
 
   useEffect(() => {
     loadProducts()
-  }, [selectedCategory, sortBy])
+  }, [selectedCategory, sortBy, sortOrder])
 
   const loadProducts = async () => {
     try {
@@ -25,6 +26,7 @@ function ProductList() {
       if (searchTerm) params.searchTerm = searchTerm
       if (selectedCategory) params.categoryId = selectedCategory
       if (sortBy) params.sortBy = sortBy
+      if (sortOrder) params.sortOrder = sortOrder
       const data = await getProducts(params)
       setProducts(data)
     } catch (err) {
@@ -73,10 +75,16 @@ function ProductList() {
               </select>
             </div>
             <div className="col-md-2">
-              <select className="form-select" value={sortBy}
-                onChange={e => setSortBy(e.target.value)}>
+              <select className="form-select"
+                value={sortOrder === 'desc' ? 'price-desc' : sortBy}
+                onChange={e => {
+                  const val = e.target.value
+                  setSortBy(val === 'price-desc' ? 'price' : val)
+                  setSortOrder(val === 'price-desc' ? 'desc' : 'asc')
+                }}>
                 <option value="name">Name</option>
                 <option value="price">Price: Low to High</option>
+                <option value="price-desc">Price: High to Low</option>
               </select>
             </div>
             <div className="col-md-2">
