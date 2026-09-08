@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { getProducts } from '../api/productsApi'
+import { useCart } from '../context/CartContext'
 
 function ProductList() {
+  const { addToCart } = useCart()
   const [products, setProducts] = useState([])
   const [categories, setCategories] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
@@ -145,6 +147,10 @@ function ProductList() {
                         className="btn btn-outline-success mt-3 w-100">
                         View Details
                       </Link>
+                      <button className="btn btn-success mt-2 w-100"
+                        onClick={() => addToCart(p)}>
+                        Add to Cart
+                      </button>
                     </div>
                   </div>
                 </div>

@@ -3,11 +3,24 @@ import { Routes, Route, Link, useLocation } from 'react-router-dom'
 import ProductList from './components/ProductList'
 import ProductDetail from './components/ProductDetail'
 import CategoryList from './components/CategoryList'
+import Cart from './components/Cart'
+import Checkout from './components/Checkout'
+import Login from './components/Login'
+import { CartProvider, useCart } from './context/CartContext'
 import './App.css'
 
 function App() {
+  return (
+    <CartProvider>
+      <AppContent />
+    </CartProvider>
+  )
+}
+
+function AppContent() {
   const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
+  const { cartCount } = useCart()
 
   return (
     <div className="d-flex flex-column min-vh-100">
@@ -32,6 +45,19 @@ function App() {
                 <Link className={`nav-link ${location.pathname.startsWith('/categories') ? 'active' : ''}`} to="/categories"
                   onClick={() => setMenuOpen(false)}>Categories</Link>
               </li>
+              <li className="nav-item">
+                <Link className={`nav-link ${location.pathname.startsWith('/login') ? 'active' : ''}`} to="/login"
+                  onClick={() => setMenuOpen(false)}>Login</Link>
+              </li>
+              <li className="nav-item">
+                <Link className={`nav-link position-relative ${location.pathname.startsWith('/cart') ? 'active' : ''}`} to="/cart"
+                  onClick={() => setMenuOpen(false)}>
+                  Cart
+                  {cartCount > 0 && (
+                    <span className="badge bg-warning text-dark rounded-pill ms-1">{cartCount}</span>
+                  )}
+                </Link>
+              </li>
             </ul>
           </div>
         </div>
@@ -43,6 +69,9 @@ function App() {
           <Route path="/products" element={<ProductList />} />
           <Route path="/products/:id" element={<ProductDetail />} />
           <Route path="/categories" element={<CategoryList />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/login" element={<Login />} />
         </Routes>
       </main>
 

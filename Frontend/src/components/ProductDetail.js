@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { getProduct } from '../api/productsApi'
+import { useCart } from '../context/CartContext'
 
 function ProductDetail() {
   const { id } = useParams()
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [added, setAdded] = useState(false)
+  const { addToCart } = useCart()
 
   useEffect(() => {
     loadProduct()
@@ -41,6 +44,12 @@ function ProductDetail() {
 
   const isLowStock = product.stock && product.stock.quantity <= product.stock.lowStockThreshold
   const inStock = product.stock && product.stock.quantity > 0
+
+  const handleAddToCart = () => {
+    addToCart(product)
+    setAdded(true)
+    setTimeout(() => setAdded(false), 2000)
+  }
 
   return (
     <div className="container my-4">
@@ -91,9 +100,14 @@ function ProductDetail() {
                 )}
               </div>
 
-              <Link to="/products" className="btn btn-outline-success mt-3">
+              <Link to="/products" className="btn btn-outline-success mt-3 me-2">
                 Back to Products
               </Link>
+              {inStock && (
+                <button className="btn btn-success mt-3" onClick={handleAddToCart}>
+                  {added ? '✓ Added!' : 'Add to Cart'}
+                </button>
+              )}
             </div>
           </div>
         </div>
