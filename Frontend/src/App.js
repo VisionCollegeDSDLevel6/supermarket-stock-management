@@ -98,28 +98,49 @@ function Home() {
       <section className="container my-5">
         <div className="row g-4">
           <div className="col-md-4">
-            <div className="card border-0 shadow-sm text-center h-100">
-              <div className="card-body py-4">
-                <h5 className="fw-semibold">Fresh Products</h5>
-                <p className="text-muted small mb-0">Quality guaranteed every day</p>
+            <Link to="/products" className="text-decoration-none">
+              <div className="card border-0 shadow-sm text-center h-100 card-hover">
+                <div className="card-body py-4">
+                  <div className="text-success mb-3">
+                    <svg width="40" height="40" fill="currentColor" viewBox="0 0 16 16">
+                      <path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5z"/>
+                    </svg>
+                  </div>
+                  <h5 className="fw-semibold text-dark">Product Catalog</h5>
+                  <p className="text-muted small mb-0">Browse our full selection of products with detailed info and pricing</p>
+                </div>
               </div>
-            </div>
+            </Link>
           </div>
           <div className="col-md-4">
-            <div className="card border-0 shadow-sm text-center h-100">
-              <div className="card-body py-4">
-                <h5 className="fw-semibold">Best Prices</h5>
-                <p className="text-muted small mb-0">Competitive prices on all items</p>
+            <Link to="/categories" className="text-decoration-none">
+              <div className="card border-0 shadow-sm text-center h-100 card-hover">
+                <div className="card-body py-4">
+                  <div className="text-success mb-3">
+                    <svg width="40" height="40" fill="currentColor" viewBox="0 0 16 16">
+                      <path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zm8 0A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm-8 8A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm8 0A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3z"/>
+                    </svg>
+                  </div>
+                  <h5 className="fw-semibold text-dark">Shop by Category</h5>
+                  <p className="text-muted small mb-0">Find exactly what you need with our easy category browsing</p>
+                </div>
               </div>
-            </div>
+            </Link>
           </div>
           <div className="col-md-4">
-            <div className="card border-0 shadow-sm text-center h-100">
-              <div className="card-body py-4">
-                <h5 className="fw-semibold">Fast Delivery</h5>
-                <p className="text-muted small mb-0">Same-day delivery available</p>
+            <Link to="/products" className="text-decoration-none">
+              <div className="card border-0 shadow-sm text-center h-100 card-hover">
+                <div className="card-body py-4">
+                  <div className="text-success mb-3">
+                    <svg width="40" height="40" fill="currentColor" viewBox="0 0 16 16">
+                      <path d="M2.5 0a.5.5 0 0 1 .5.5V2h10V.5a.5.5 0 0 1 1 0V2h1a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h1V.5a.5.5 0 0 1 .5-.5zM1 4v10h14V4H1zm3 2.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm0 3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm0 3a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5z"/>
+                    </svg>
+                  </div>
+                  <h5 className="fw-semibold text-dark">Real-time Stock</h5>
+                  <p className="text-muted small mb-0">Check product availability and stock levels instantly</p>
+                </div>
               </div>
-            </div>
+            </Link>
           </div>
         </div>
       </section>
