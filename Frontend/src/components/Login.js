@@ -105,29 +105,6 @@ function Login() {
               </p>
             </div>
           </div>
-
-          <div className="card shadow-sm border-0 mt-3">
-            <div className="card-body p-3">
-              <h6 className="fw-bold mb-2">Demo Accounts</h6>
-              <div className="small">
-                <p className="mb-1"><strong>Admin:</strong> admin@stockflow.co.nz / Admin123!</p>
-                <p className="mb-1"><strong>Admin:</strong> ngthanh123426@gmail.com / Admin123!</p>
-                <p className="mb-1"><strong>Manager:</strong> manager@stockflow.com / Admin123!</p>
-                <p className="mb-0"><strong>Staff:</strong> staff@stockflow.com / Admin123!</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="card shadow-sm border-0 mt-3">
-            <div className="card-body p-3">
-              <h6 className="fw-bold mb-2">Admin Panel</h6>
-              <p className="small text-muted mb-1">For staff dashboard and management:</p>
-              <a href="https://localhost:5001" className="btn btn-outline-success btn-sm w-100"
-                target="_blank" rel="noreferrer">
-                Go to Admin Panel
-              </a>
-            </div>
-          </div>
         </div>
       </div>
     </div>
