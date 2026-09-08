@@ -1,0 +1,171 @@
+﻿@model IEnumerable<SupermarketStockManagement.Models.StockHistory>
+
+@{
+    ViewData["Title"] = "Stock History";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Stock History</h1>
+
+        <p class="page-subtitle">
+            View when and how product quantities were changed.
+        </p>
+    </div>
+
+    <a asp-action="Index"
+       class="btn btn-secondary">
+        ← Back to Stock
+    </a>
+</div>
+
+<div class="content-card">
+
+    <div class="content-card-header">
+        <div>
+            <h2 class="content-card-title">
+                Quantity Change History
+            </h2>
+
+            <p class="card-subtitle">
+                @Model.Count() stock changes recorded
+            </p>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Previous Quantity</th>
+                    <th>New Quantity</th>
+                    <th>Change</th>
+                    <th>Changed By</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @if (Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        var quantityChange =
+                            item.NewQuantity -
+                            item.PreviousQuantity;
+
+                        <tr>
+                            <td>
+                                <div class="product-cell">
+                                    <div class="product-avatar">
+                                        @(item.Product?.Name
+                                            .Substring(0, 1)
+                                            .ToUpper() ?? "?")
+                                    </div>
+
+                                    <div>
+                                        <strong>
+                                            @(item.Product?.Name ??
+                                                "Unknown Product")
+                                        </strong>
+
+                                        <small>
+                                            Product ID: @item.ProductId
+                                        </small>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>
+                                <span class="stock-status stock-empty">
+                                    @item.PreviousQuantity units
+                                </span>
+                            </td>
+
+                            <td>
+                                <span class="stock-status stock-good">
+                                    @item.NewQuantity units
+                                </span>
+                            </td>
+
+                            <td>
+                                @if (quantityChange > 0)
+                                {
+                                    <span class="stock-status stock-good">
+                                        +@quantityChange
+                                    </span>
+                                }
+                                else if (quantityChange < 0)
+                                {
+                                    <span class="stock-status stock-low">
+                                        @quantityChange
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="stock-status stock-empty">
+                                        No change
+                                    </span>
+                                }
+                            </td>
+
+                            <td>
+                                @if (string.IsNullOrWhiteSpace(
+                                    item.ChangedBy))
+                                {
+                                    <span class="text-muted">
+                                        Unknown
+                                    </span>
+                                }
+                                else
+                                {
+                                    @item.ChangedBy
+                                }
+                            </td>
+
+                            <td>
+                                @item.ChangeDate.ToString(
+                                    "dd/MM/yyyy HH:mm")
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6"
+                            class="empty-products">
+
+                            <div class="empty-products-icon">
+                                <svg viewBox="0 0 24 24"
+                                     width="32"
+                                     height="32"
+                                     fill="none">
+
+                                    <path d="M12 8V12L15 15"
+                                          stroke="currentColor"
+                                          stroke-width="1.8"
+                                          stroke-linecap="round" />
+
+                                    <circle cx="12"
+                                            cy="12"
+                                            r="9"
+                                            stroke="currentColor"
+                                            stroke-width="1.8" />
+                                </svg>
+                            </div>
+
+                            <h3>No stock history found</h3>
+
+                            <p>
+                                Quantity changes will appear here after
+                                a stock record is updated.
+                            </p>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

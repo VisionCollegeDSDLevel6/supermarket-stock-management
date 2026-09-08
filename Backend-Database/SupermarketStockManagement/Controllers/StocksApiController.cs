@@ -1,30 +1,41 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SupermarketStockManagement.Models;
 using SupermarketStockManagement.Data;
+using SupermarketStockManagement.Models;
 
 [Route("api/stocks")]
 [ApiController]
 public class StocksApiController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
+
     public StocksApiController(ApplicationDbContext context)
     {
         _context = context;
     }
 
-    // GET: api/Stock
+    // GET: api/stocks
+    // Customers can view product availability without logging in
+    [AllowAnonymous]
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Stock>>> GetStock()
+    public async Task<ActionResult<IEnumerable<Stock>>> GetStocks()
     {
-        return await _context.Stocks.ToListAsync();
+        return await _context.Stocks
+            .Include(stock => stock.Product)
+            .OrderBy(stock => stock.Product!.Name)
+            .ToListAsync();
     }
 
-    // GET: api/Stock/5
+    // GET: api/stocks/5
+    [AllowAnonymous]
     [HttpGet("{stockid}")]
     public async Task<ActionResult<Stock>> GetStock(int stockid)
     {
-        var stock = await _context.Stocks.FindAsync(stockid);
+        var stock = await _context.Stocks
+            .Include(item => item.Product)
+            .FirstOrDefaultAsync(item =>
+                item.StockId == stockid);
 
         if (stock == null)
         {
@@ -34,17 +45,34 @@ public class StocksApiController : ControllerBase
         return stock;
     }
 
-    // PUT: api/Stock/5
-    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+    // PUT: api/stocks/5
+    [Authorize(Roles = "Admin,Manager,Staff")]
     [HttpPut("{stockid}")]
-    public async Task<IActionResult> PutStock(int? stockid, Stock stock)
+    public async Task<IActionResult> PutStock(
+        int stockid,
+        Stock stock)
     {
         if (stockid != stock.StockId)
         {
             return BadRequest();
         }
 
-        _context.Entry(stock).State = EntityState.Modified;
+        if (stock.Quantity < 0)
+        {
+            return BadRequest(
+                "Quantity cannot be negative."
+            );
+        }
+
+        if (stock.LowStockThreshold < 0)
+        {
+            return BadRequest(
+                "Low-stock threshold cannot be negative."
+            );
+        }
+
+        _context.Entry(stock).State =
+            EntityState.Modified;
 
         try
         {
@@ -56,31 +84,65 @@ public class StocksApiController : ControllerBase
             {
                 return NotFound();
             }
-            else
-            {
-                throw;
-            }
+
+            throw;
         }
 
         return NoContent();
     }
 
-    // POST: api/Stock
-    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+    // POST: api/stocks
+    [Authorize(Roles = "Admin,Manager,Staff")]
     [HttpPost]
-    public async Task<ActionResult<Stock>> PostStock(Stock stock)
+    public async Task<ActionResult<Stock>> PostStock(
+        Stock stock)
     {
+        if (stock.Quantity < 0)
+        {
+            return BadRequest(
+                "Quantity cannot be negative."
+            );
+        }
+
+        if (stock.LowStockThreshold < 0)
+        {
+            return BadRequest(
+                "Low-stock threshold cannot be negative."
+            );
+        }
+
+        var stockAlreadyExists =
+            await _context.Stocks.AnyAsync(existing =>
+                existing.ProductId == stock.ProductId);
+
+        if (stockAlreadyExists)
+        {
+            return Conflict(
+                "This product already has a stock record."
+            );
+        }
+
         _context.Stocks.Add(stock);
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction("GetStock", new { stockid = stock.StockId }, stock);
+        return CreatedAtAction(
+            nameof(GetStock),
+            new
+            {
+                stockid = stock.StockId
+            },
+            stock
+        );
     }
 
-    // DELETE: api/Stock/5
+    // DELETE: api/stocks/5
+    [Authorize(Roles = "Admin,Manager,Staff")]
     [HttpDelete("{stockid}")]
-    public async Task<IActionResult> DeleteStock(int? stockid)
+    public async Task<IActionResult> DeleteStock(int stockid)
     {
-        var stock = await _context.Stocks.FindAsync(stockid);
+        var stock = await _context.Stocks
+            .FindAsync(stockid);
+
         if (stock == null)
         {
             return NotFound();
@@ -92,8 +154,9 @@ public class StocksApiController : ControllerBase
         return NoContent();
     }
 
-    private bool StockExists(int? stockid)
+    private bool StockExists(int stockid)
     {
-        return _context.Stocks.Any(e => e.StockId == stockid);
+        return _context.Stocks.Any(stock =>
+            stock.StockId == stockid);
     }
 }

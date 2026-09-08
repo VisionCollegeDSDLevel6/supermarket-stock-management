@@ -2,6 +2,10 @@
 
 @{
     ViewData["Title"] = "Categories";
+
+    var canManageCategories =
+        User.IsInRole("Admin") ||
+        User.IsInRole("Manager");
 }
 
 <!-- Page Header -->
@@ -14,12 +18,14 @@
         </p>
     </div>
 
-    <a asp-action="Create"
-       class="btn btn-primary">
-        + Add Category
-    </a>
+    @if (canManageCategories)
+    {
+        <a asp-action="Create"
+           class="btn btn-primary">
+            + Add Category
+        </a>
+    }
 </div>
-
 
 <div class="content-card">
 
@@ -69,7 +75,8 @@
                             </td>
 
                             <td>
-                                @if (string.IsNullOrWhiteSpace(item.Description))
+                                @if (string.IsNullOrWhiteSpace(
+                                    item.Description))
                                 {
                                     <span class="text-muted">
                                         No description
@@ -89,23 +96,28 @@
 
                             <td>
                                 <div class="table-actions">
+
+                                    <!-- Every authorised role can view details -->
                                     <a asp-action="Details"
                                        asp-route-id="@item.CategoryId"
                                        class="action-button details-action">
                                         View
                                     </a>
 
-                                    <a asp-action="Edit"
-                                       asp-route-id="@item.CategoryId"
-                                       class="action-button edit-action">
-                                        Edit
-                                    </a>
+                                    @if (canManageCategories)
+                                    {
+                                        <a asp-action="Edit"
+                                           asp-route-id="@item.CategoryId"
+                                           class="action-button edit-action">
+                                            Edit
+                                        </a>
 
-                                    <a asp-action="Delete"
-                                       asp-route-id="@item.CategoryId"
-                                       class="action-button delete-action">
-                                        Delete
-                                    </a>
+                                        <a asp-action="Delete"
+                                           asp-route-id="@item.CategoryId"
+                                           class="action-button delete-action">
+                                            Delete
+                                        </a>
+                                    }
                                 </div>
                             </td>
                         </tr>
@@ -159,14 +171,23 @@
 
                             <h3>No categories found</h3>
 
-                            <p>
-                                Create a category before adding products.
-                            </p>
+                            @if (canManageCategories)
+                            {
+                                <p>
+                                    Create a category before adding products.
+                                </p>
 
-                            <a asp-action="Create"
-                               class="btn btn-primary">
-                                + Add First Category
-                            </a>
+                                <a asp-action="Create"
+                                   class="btn btn-primary">
+                                    + Add First Category
+                                </a>
+                            }
+                            else
+                            {
+                                <p>
+                                    There are currently no categories available.
+                                </p>
+                            }
                         </td>
                     </tr>
                 }

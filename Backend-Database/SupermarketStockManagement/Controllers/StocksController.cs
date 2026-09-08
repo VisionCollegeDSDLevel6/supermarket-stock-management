@@ -15,6 +15,7 @@ public class StocksController : Controller
         _context = context;
     }
 
+    // GET: Stocks
     public async Task<IActionResult> Index()
     {
         var stocks = await _context.Stocks
@@ -25,6 +26,7 @@ public class StocksController : Controller
         return View(stocks);
     }
 
+    // GET: Stocks/Details/5
     public async Task<IActionResult> Details(int? id)
     {
         if (id == null)
@@ -33,9 +35,9 @@ public class StocksController : Controller
         }
 
         var stock = await _context.Stocks
-            .Include(stock => stock.Product)
-            .FirstOrDefaultAsync(stock =>
-                stock.StockId == id);
+            .Include(item => item.Product)
+            .FirstOrDefaultAsync(item =>
+                item.StockId == id);
 
         if (stock == null)
         {
@@ -45,20 +47,37 @@ public class StocksController : Controller
         return View(stock);
     }
 
+    // GET: Stocks/History
+    // Only Admin and Manager can view stock history
+    [Authorize(Roles = "Admin,Manager")]
+    public async Task<IActionResult> History()
+    {
+        var history = await _context.StockHistories
+            .Include(item => item.Product)
+            .OrderByDescending(item =>
+                item.ChangeDate)
+            .ToListAsync();
+
+        return View(history);
+    }
+
+    // GET: Stocks/Create
     public async Task<IActionResult> Create()
     {
         await LoadProducts();
+
         return View();
     }
 
+    // POST: Stocks/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(
         [Bind("StockId,ProductId,Quantity,LowStockThreshold")]
         Stock stock)
     {
-        var stockAlreadyExists = await _context.Stocks
-            .AnyAsync(existing =>
+        var stockAlreadyExists =
+            await _context.Stocks.AnyAsync(existing =>
                 existing.ProductId == stock.ProductId);
 
         if (stockAlreadyExists)
@@ -87,16 +106,19 @@ public class StocksController : Controller
 
         if (ModelState.IsValid)
         {
-            _context.Add(stock);
+            _context.Stocks.Add(stock);
+
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
         }
 
         await LoadProducts(stock.ProductId);
+
         return View(stock);
     }
 
+    // GET: Stocks/Edit/5
     public async Task<IActionResult> Edit(int? id)
     {
         if (id == null)
@@ -104,7 +126,8 @@ public class StocksController : Controller
             return NotFound();
         }
 
-        var stock = await _context.Stocks.FindAsync(id);
+        var stock = await _context.Stocks
+            .FindAsync(id);
 
         if (stock == null)
         {
@@ -119,6 +142,8 @@ public class StocksController : Controller
         return View(stock);
     }
 
+    // POST: Stocks/Edit/5
+    // Updates stock and records quantity changes
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(
@@ -131,10 +156,19 @@ public class StocksController : Controller
             return NotFound();
         }
 
+        var existingStock = await _context.Stocks
+            .FirstOrDefaultAsync(item =>
+                item.StockId == id);
+
+        if (existingStock == null)
+        {
+            return NotFound();
+        }
+
         var productUsedByAnotherStock =
-            await _context.Stocks.AnyAsync(existing =>
-                existing.ProductId == stock.ProductId &&
-                existing.StockId != stock.StockId);
+            await _context.Stocks.AnyAsync(item =>
+                item.ProductId == stock.ProductId &&
+                item.StockId != stock.StockId);
 
         if (productUsedByAnotherStock)
         {
@@ -162,9 +196,37 @@ public class StocksController : Controller
 
         if (ModelState.IsValid)
         {
+            var previousQuantity =
+                existingStock.Quantity;
+
+            existingStock.ProductId =
+                stock.ProductId;
+
+            existingStock.Quantity =
+                stock.Quantity;
+
+            existingStock.LowStockThreshold =
+                stock.LowStockThreshold;
+
+            // Save history only when quantity changes
+            if (previousQuantity != stock.Quantity)
+            {
+                var stockHistory = new StockHistory
+                {
+                    ProductId = stock.ProductId,
+                    PreviousQuantity = previousQuantity,
+                    NewQuantity = stock.Quantity,
+                    ChangeDate = DateTime.Now,
+                    ChangedBy =
+                        User.Identity?.Name ?? "Unknown"
+                };
+
+                _context.StockHistories.Add(
+                    stockHistory);
+            }
+
             try
             {
-                _context.Update(stock);
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
@@ -188,6 +250,7 @@ public class StocksController : Controller
         return View(stock);
     }
 
+    // GET: Stocks/Delete/5
     public async Task<IActionResult> Delete(int? id)
     {
         if (id == null)
@@ -196,9 +259,9 @@ public class StocksController : Controller
         }
 
         var stock = await _context.Stocks
-            .Include(stock => stock.Product)
-            .FirstOrDefaultAsync(stock =>
-                stock.StockId == id);
+            .Include(item => item.Product)
+            .FirstOrDefaultAsync(item =>
+                item.StockId == id);
 
         if (stock == null)
         {
@@ -208,21 +271,25 @@ public class StocksController : Controller
         return View(stock);
     }
 
+    // POST: Stocks/Delete/5
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var stock = await _context.Stocks.FindAsync(id);
+        var stock = await _context.Stocks
+            .FindAsync(id);
 
         if (stock != null)
         {
             _context.Stocks.Remove(stock);
+
             await _context.SaveChangesAsync();
         }
 
         return RedirectToAction(nameof(Index));
     }
 
+    // Loads products that do not already have a stock record
     private async Task LoadProducts(
         int? selectedProductId = null,
         int? currentStockId = null)
@@ -230,11 +297,15 @@ public class StocksController : Controller
         var products = await _context.Products
             .Where(product =>
                 !_context.Stocks.Any(stock =>
-                    stock.ProductId == product.ProductId) ||
+                    stock.ProductId ==
+                    product.ProductId) ||
                 _context.Stocks.Any(stock =>
-                    stock.StockId == currentStockId &&
-                    stock.ProductId == product.ProductId))
-            .OrderBy(product => product.Name)
+                    stock.StockId ==
+                    currentStockId &&
+                    stock.ProductId ==
+                    product.ProductId))
+            .OrderBy(product =>
+                product.Name)
             .ToListAsync();
 
         ViewData["ProductId"] = new SelectList(

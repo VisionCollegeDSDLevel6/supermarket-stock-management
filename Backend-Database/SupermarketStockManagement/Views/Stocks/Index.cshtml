@@ -2,19 +2,35 @@
 
 @{
     ViewData["Title"] = "Stock";
+
+    var canViewHistory =
+        User.IsInRole("Admin") ||
+        User.IsInRole("Manager");
 }
 
 <div class="page-header">
     <div>
         <h1 class="page-title">Stock</h1>
+
         <p class="page-subtitle">
             Monitor product quantities and low-stock levels.
         </p>
     </div>
 
-    <a asp-action="Create" class="btn btn-primary">
-        + Add Stock
-    </a>
+    <div class="d-flex gap-2">
+        @if (canViewHistory)
+        {
+            <a asp-action="History"
+               class="btn btn-secondary">
+                View Stock History
+            </a>
+        }
+
+        <a asp-action="Create"
+           class="btn btn-primary">
+            + Add Stock
+        </a>
+    </div>
 </div>
 
 <div class="content-card">
@@ -47,10 +63,12 @@
                 {
                     foreach (var item in Model)
                     {
-                        var isOutOfStock = item.Quantity == 0;
+                        var isOutOfStock =
+                            item.Quantity == 0;
 
                         var isLowStock =
-                            item.Quantity <= item.LowStockThreshold;
+                            item.Quantity <=
+                            item.LowStockThreshold;
 
                         <tr>
                             <td>
@@ -63,7 +81,8 @@
 
                                     <div>
                                         <strong>
-                                            @(item.Product?.Name ?? "Unknown")
+                                            @(item.Product?.Name ??
+                                                "Unknown")
                                         </strong>
 
                                         <small>
@@ -77,10 +96,15 @@
                                 <strong class="stock-quantity">
                                     @item.Quantity
                                 </strong>
-                                <span class="text-muted"> units</span>
+
+                                <span class="text-muted">
+                                    units
+                                </span>
                             </td>
 
-                            <td>@item.LowStockThreshold units</td>
+                            <td>
+                                @item.LowStockThreshold units
+                            </td>
 
                             <td>
                                 @if (isOutOfStock)
@@ -130,10 +154,18 @@
                 else
                 {
                     <tr>
-                        <td colspan="5" class="empty-products">
-                            <div class="empty-products-icon">▥</div>
+                        <td colspan="5"
+                            class="empty-products">
+
+                            <div class="empty-products-icon">
+                                ▥
+                            </div>
+
                             <h3>No stock records found</h3>
-                            <p>Add stock quantities for your products.</p>
+
+                            <p>
+                                Add stock quantities for your products.
+                            </p>
 
                             <a asp-action="Create"
                                class="btn btn-primary">

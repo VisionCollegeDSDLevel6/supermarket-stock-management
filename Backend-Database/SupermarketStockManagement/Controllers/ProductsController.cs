@@ -16,19 +16,55 @@ public class ProductsController : Controller
     }
 
     // GET: PRODUCTS
-  
-    public async Task<IActionResult> Index()
+
+    // Display products with optional name search and category filter
+    public async Task<IActionResult> Index(
+        string? searchTerm,
+        int? categoryId)
     {
-        var products = await _context.Products
+        var productsQuery = _context.Products
             .Include(product => product.Category)
             .Include(product => product.Stock)
+            .AsQueryable();
+
+        // Search products by name
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            searchTerm = searchTerm.Trim();
+
+            productsQuery = productsQuery.Where(product =>
+                product.Name.Contains(searchTerm));
+        }
+
+        // Filter products by category
+        if (categoryId.HasValue)
+        {
+            productsQuery = productsQuery.Where(product =>
+                product.CategoryId == categoryId.Value);
+        }
+
+        // Preserve the current search value in the view
+        ViewData["SearchTerm"] = searchTerm;
+
+        // Load categories for the filter dropdown
+        ViewData["CategoryId"] = new SelectList(
+            await _context.Categories
+                .OrderBy(category => category.Name)
+                .ToListAsync(),
+            "CategoryId",
+            "Name",
+            categoryId
+        );
+
+        var products = await productsQuery
+            .OrderBy(product => product.Name)
             .ToListAsync();
 
         return View(products);
     }
 
     // GET: PRODUCTS/Details/5
-   
+
     public async Task<IActionResult> Details(int? id)
     {
         if (id == null)

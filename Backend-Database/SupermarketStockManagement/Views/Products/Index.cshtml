@@ -19,8 +19,66 @@
         + Add Product
     </a>
 </div>
+<!-- Product Search and Category Filter -->
+<div class="content-card mb-4">
+    <div class="content-card-body">
+        <form asp-action="Index"
+              method="get">
 
+            <div class="row g-3 align-items-end">
 
+                <!-- Search by product name -->
+                <div class="col-md-6">
+                    <label for="searchTerm"
+                           class="form-label">
+                        Search Product
+                    </label>
+
+                    <input type="search"
+                           id="searchTerm"
+                           name="searchTerm"
+                           value="@ViewData["SearchTerm"]"
+                           class="form-control"
+                           placeholder="Enter product name..." />
+                </div>
+
+                <!-- Filter by category -->
+                <div class="col-md-3">
+                    <label for="categoryId"
+                           class="form-label">
+                        Category
+                    </label>
+
+                    <select id="categoryId"
+                            name="categoryId"
+                            class="form-select"
+                            asp-items="ViewBag.CategoryId">
+
+                        <option value="">
+                            All Categories
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Search buttons -->
+                <div class="col-md-3">
+                    <div class="d-flex gap-2">
+                        <button type="submit"
+                                class="btn btn-primary flex-fill">
+                            Search
+                        </button>
+
+                        <a asp-action="Index"
+                           class="btn btn-secondary flex-fill">
+                            Clear
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </form>
+    </div>
+</div>
 <!-- Products Table -->
 <div class="content-card">
 
@@ -189,15 +247,15 @@
                                 </svg>
                             </div>
 
-                            <h3>No products found</h3>
+                            <h3>No matching products found</h3>
 
                             <p>
-                                Add your first product to begin managing inventory.
+                                Try changing the product name or category filter.
                             </p>
 
-                            <a asp-action="Create"
-                               class="btn btn-primary">
-                                + Add First Product
+                            <a asp-action="Index"
+                               class="btn btn-secondary">
+                                Clear Filters
                             </a>
                         </td>
                     </tr>

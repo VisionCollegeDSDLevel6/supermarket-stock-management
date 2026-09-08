@@ -9,11 +9,13 @@ public class CategoriesController : Controller
 {
     private readonly ApplicationDbContext _context;
 
-    public CategoriesController(ApplicationDbContext context)
+    public CategoriesController(
+        ApplicationDbContext context)
     {
         _context = context;
     }
 
+    // Admin, Manager and Staff can view categories
     public async Task<IActionResult> Index()
     {
         var categories = await _context.Categories
@@ -24,6 +26,7 @@ public class CategoriesController : Controller
         return View(categories);
     }
 
+    // Admin, Manager and Staff can view category details
     public async Task<IActionResult> Details(int? id)
     {
         if (id == null)
@@ -45,11 +48,15 @@ public class CategoriesController : Controller
         return View(category);
     }
 
+    // Only Admin and Manager can create categories
+    [Authorize(Roles = "Admin,Manager")]
     public IActionResult Create()
     {
         return View();
     }
 
+    // Only Admin and Manager can create categories
+    [Authorize(Roles = "Admin,Manager")]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(
@@ -80,6 +87,8 @@ public class CategoriesController : Controller
         return View(category);
     }
 
+    // Only Admin and Manager can edit categories
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<IActionResult> Edit(int? id)
     {
         if (id == null)
@@ -87,7 +96,8 @@ public class CategoriesController : Controller
             return NotFound();
         }
 
-        var category = await _context.Categories.FindAsync(id);
+        var category =
+            await _context.Categories.FindAsync(id);
 
         if (category == null)
         {
@@ -97,6 +107,8 @@ public class CategoriesController : Controller
         return View(category);
     }
 
+    // Only Admin and Manager can edit categories
+    [Authorize(Roles = "Admin,Manager")]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(
@@ -146,6 +158,8 @@ public class CategoriesController : Controller
         return View(category);
     }
 
+    // Only Admin and Manager can delete categories
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<IActionResult> Delete(int? id)
     {
         if (id == null)
@@ -166,6 +180,8 @@ public class CategoriesController : Controller
         return View(category);
     }
 
+    // Only Admin and Manager can delete categories
+    [Authorize(Roles = "Admin,Manager")]
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)

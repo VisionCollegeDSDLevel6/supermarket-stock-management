@@ -1,23 +1,25 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SupermarketStockManagement.Models;
 using SupermarketStockManagement.Data;
+using SupermarketStockManagement.Models;
 
 [Route("api/products")]
 [ApiController]
 public class ProductsApiController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
+
     public ProductsApiController(ApplicationDbContext context)
     {
         _context = context;
     }
 
-    // GET: api/Product
-    // Supports search/filter via query parameters:
-    //   ?searchTerm=&categoryId=&minPrice=&maxPrice=&sortBy=name&sortOrder=asc&lowStockOnly=false
+    // GET: api/products
+    // Supports searching, filtering and sorting through query parameters
+    [AllowAnonymous]
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Product>>> GetProduct(
+    public async Task<ActionResult<IEnumerable<Product>>> GetProducts(
         [FromQuery] string? searchTerm = null,
         [FromQuery] int? categoryId = null,
         [FromQuery] decimal? minPrice = null,
@@ -27,62 +29,103 @@ public class ProductsApiController : ControllerBase
         [FromQuery] bool lowStockOnly = false)
     {
         var query = _context.Products
-            .Include(p => p.Category)
-            .Include(p => p.Stock)
+            .Include(product => product.Category)
+            .Include(product => product.Stock)
             .AsQueryable();
 
-        // Search by name or description
+        // Search by product name or description
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            var term = searchTerm.ToLower();
-            query = query.Where(p =>
-                p.Name.ToLower().Contains(term) ||
-                (p.Description != null && p.Description.ToLower().Contains(term)));
+            searchTerm = searchTerm.Trim();
+
+            query = query.Where(product =>
+                product.Name.Contains(searchTerm) ||
+                (product.Description != null &&
+                 product.Description.Contains(searchTerm)));
         }
 
         // Filter by category
         if (categoryId.HasValue)
         {
-            query = query.Where(p => p.CategoryId == categoryId.Value);
+            query = query.Where(product =>
+                product.CategoryId == categoryId.Value);
         }
 
-        // Filter by price range
+        // Filter by minimum price
         if (minPrice.HasValue)
         {
-            query = query.Where(p => p.Price >= minPrice.Value);
+            query = query.Where(product =>
+                product.Price >= minPrice.Value);
         }
+
+        // Filter by maximum price
         if (maxPrice.HasValue)
         {
-            query = query.Where(p => p.Price <= maxPrice.Value);
+            query = query.Where(product =>
+                product.Price <= maxPrice.Value);
         }
 
-        // Filter low stock only
+        // Show only products with low stock
         if (lowStockOnly)
         {
-            query = query.Where(p => p.Stock != null && p.Stock.Quantity <= p.Stock.LowStockThreshold);
+            query = query.Where(product =>
+                product.Stock != null &&
+                product.Stock.Quantity <=
+                product.Stock.LowStockThreshold);
         }
 
-        // Sorting
-        query = (sortBy?.ToLower()) switch
+        // Sort the product results
+        query = sortBy?.ToLower() switch
         {
-            "name" => sortOrder == "desc" ? query.OrderByDescending(p => p.Name) : query.OrderBy(p => p.Name),
-            "price" => sortOrder == "desc" ? query.OrderByDescending(p => p.Price) : query.OrderBy(p => p.Price),
-            "category" => sortOrder == "desc" ? query.OrderByDescending(p => p.Category!.Name) : query.OrderBy(p => p.Category!.Name),
-            "stock" => sortOrder == "desc" ? query.OrderByDescending(p => p.Stock!.Quantity) : query.OrderBy(p => p.Stock!.Quantity),
-            _ => query.OrderBy(p => p.Name)
+            "name" when sortOrder == "desc" =>
+                query.OrderByDescending(product =>
+                    product.Name),
+
+            "name" =>
+                query.OrderBy(product =>
+                    product.Name),
+
+            "price" when sortOrder == "desc" =>
+                query.OrderByDescending(product =>
+                    product.Price),
+
+            "price" =>
+                query.OrderBy(product =>
+                    product.Price),
+
+            "category" when sortOrder == "desc" =>
+                query.OrderByDescending(product =>
+                    product.Category!.Name),
+
+            "category" =>
+                query.OrderBy(product =>
+                    product.Category!.Name),
+
+            "stock" when sortOrder == "desc" =>
+                query.OrderByDescending(product =>
+                    product.Stock!.Quantity),
+
+            "stock" =>
+                query.OrderBy(product =>
+                    product.Stock!.Quantity),
+
+            _ => query.OrderBy(product =>
+                product.Name)
         };
 
         return await query.ToListAsync();
     }
 
-    // GET: api/Product/5
+    // GET: api/products/5
+    [AllowAnonymous]
     [HttpGet("{productid}")]
     public async Task<ActionResult<Product>> GetProduct(int productid)
     {
         var product = await _context.Products
-            .Include(p => p.Category)
-            .Include(p => p.Stock)
-            .FirstOrDefaultAsync(p => p.ProductId == productid);
+            .Include(item => item.Category)
+            .Include(item => item.Stock)
+            .FirstOrDefaultAsync(item =>
+                item.ProductId == productid);
 
         if (product == null)
         {
@@ -92,17 +135,20 @@ public class ProductsApiController : ControllerBase
         return product;
     }
 
-    // PUT: api/Product/5
-    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+    // PUT: api/products/5
+    [Authorize(Roles = "Admin,Manager,Staff")]
     [HttpPut("{productid}")]
-    public async Task<IActionResult> PutProduct(int? productid, Product product)
+    public async Task<IActionResult> PutProduct(
+        int productid,
+        Product product)
     {
         if (productid != product.ProductId)
         {
             return BadRequest();
         }
 
-        _context.Entry(product).State = EntityState.Modified;
+        _context.Entry(product).State =
+            EntityState.Modified;
 
         try
         {
@@ -114,31 +160,40 @@ public class ProductsApiController : ControllerBase
             {
                 return NotFound();
             }
-            else
-            {
-                throw;
-            }
+
+            throw;
         }
 
         return NoContent();
     }
 
-    // POST: api/Product
-    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+    // POST: api/products
+    [Authorize(Roles = "Admin,Manager,Staff")]
     [HttpPost]
-    public async Task<ActionResult<Product>> PostProduct(Product product)
+    public async Task<ActionResult<Product>> PostProduct(
+        Product product)
     {
         _context.Products.Add(product);
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction("GetProduct", new { productid = product.ProductId }, product);
+        return CreatedAtAction(
+            nameof(GetProduct),
+            new
+            {
+                productid = product.ProductId
+            },
+            product
+        );
     }
 
-    // DELETE: api/Product/5
+    // DELETE: api/products/5
+    [Authorize(Roles = "Admin,Manager,Staff")]
     [HttpDelete("{productid}")]
-    public async Task<IActionResult> DeleteProduct(int? productid)
+    public async Task<IActionResult> DeleteProduct(int productid)
     {
-        var product = await _context.Products.FindAsync(productid);
+        var product = await _context.Products
+            .FindAsync(productid);
+
         if (product == null)
         {
             return NotFound();
@@ -150,8 +205,9 @@ public class ProductsApiController : ControllerBase
         return NoContent();
     }
 
-    private bool ProductExists(int? productid)
+    private bool ProductExists(int productid)
     {
-        return _context.Products.Any(e => e.ProductId == productid);
+        return _context.Products.Any(product =>
+            product.ProductId == productid);
     }
 }

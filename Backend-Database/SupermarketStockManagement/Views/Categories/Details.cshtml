@@ -2,6 +2,10 @@
 
 @{
     ViewData["Title"] = "Category Details";
+
+    var canManageCategories =
+        User.IsInRole("Admin") ||
+        User.IsInRole("Manager");
 }
 
 <div class="page-header">
@@ -13,7 +17,8 @@
         </p>
     </div>
 
-    <a asp-action="Index" class="btn btn-secondary">
+    <a asp-action="Index"
+       class="btn btn-secondary">
         ← Back to Categories
     </a>
 </div>
@@ -52,7 +57,6 @@
         </div>
     </div>
 
-
     <div class="col-xl-8">
         <div class="content-card">
 
@@ -67,6 +71,7 @@
                     </p>
                 </div>
 
+                <!-- Staff can manage products -->
                 <a asp-controller="Products"
                    asp-action="Create"
                    class="btn btn-primary">
@@ -94,11 +99,13 @@
                                     <td>
                                         <div class="product-cell">
                                             <div class="product-avatar">
-                                             @(product.Name.Substring(0, 1).ToUpper())
+                                                @(product.Name.Substring(0, 1).ToUpper())
                                             </div>
 
                                             <div>
-                                                <strong>@product.Name</strong>
+                                                <strong>
+                                                    @product.Name
+                                                </strong>
 
                                                 <small>
                                                     Product ID:
@@ -161,19 +168,22 @@
                 </table>
             </div>
 
-            <div class="form-footer">
-                <a asp-action="Delete"
-                   asp-route-id="@Model.CategoryId"
-                   class="btn btn-danger">
-                    Delete Category
-                </a>
+            @if (canManageCategories)
+            {
+                <div class="form-footer">
+                    <a asp-action="Delete"
+                       asp-route-id="@Model.CategoryId"
+                       class="btn btn-danger">
+                        Delete Category
+                    </a>
 
-                <a asp-action="Edit"
-                   asp-route-id="@Model.CategoryId"
-                   class="btn btn-primary">
-                    Edit Category
-                </a>
-            </div>
+                    <a asp-action="Edit"
+                       asp-route-id="@Model.CategoryId"
+                       class="btn btn-primary">
+                        Edit Category
+                    </a>
+                </div>
+            }
         </div>
     </div>
 </div>
