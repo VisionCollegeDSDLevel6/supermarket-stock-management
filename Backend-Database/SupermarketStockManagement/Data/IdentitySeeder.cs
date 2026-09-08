@@ -31,48 +31,54 @@ namespace SupermarketStockManagement.Data
                 }
             }
 
-            // Define the default administrator account
-            const string adminEmail = "admin@stockflow.co.nz";
-            const string adminPassword = "Admin123!";
-
-            var adminUser =
-                await userManager.FindByEmailAsync(adminEmail);
-
-            // Create the administrator account if it does not exist
-            if (adminUser == null)
+            // Default administrator accounts. Add new administrator emails here.
+            var adminAccounts = new[]
             {
-                adminUser = new IdentityUser
+                new { Email = "admin@stockflow.co.nz", Password = "Admin123!" },
+                new { Email = "ngthanh123426@gmail.com", Password = "Admin123!" },
+            };
+
+            foreach (var account in adminAccounts)
+            {
+                var adminUser =
+                    await userManager.FindByEmailAsync(account.Email);
+
+                // Create the administrator account if it does not exist
+                if (adminUser == null)
                 {
-                    UserName = adminEmail,
-                    Email = adminEmail,
-                    EmailConfirmed = true
-                };
+                    adminUser = new IdentityUser
+                    {
+                        UserName = account.Email,
+                        Email = account.Email,
+                        EmailConfirmed = true
+                    };
 
-                var createResult =
-                    await userManager.CreateAsync(
-                        adminUser,
-                        adminPassword);
+                    var createResult =
+                        await userManager.CreateAsync(
+                            adminUser,
+                            account.Password);
 
-                if (!createResult.Succeeded)
-                {
-                    var errors = string.Join(
-                        ", ",
-                        createResult.Errors.Select(error =>
-                            error.Description));
+                    if (!createResult.Succeeded)
+                    {
+                        var errors = string.Join(
+                            ", ",
+                            createResult.Errors.Select(error =>
+                                error.Description));
 
-                    throw new Exception(
-                        $"Cannot create the administrator account: {errors}");
+                        throw new Exception(
+                            $"Cannot create the administrator account {account.Email}: {errors}");
+                    }
                 }
-            }
 
-            // Assign the Admin role to the administrator account
-            if (!await userManager.IsInRoleAsync(
-                    adminUser,
-                    "Admin"))
-            {
-                await userManager.AddToRoleAsync(
-                    adminUser,
-                    "Admin");
+                // Assign the Admin role to the administrator account
+                if (!await userManager.IsInRoleAsync(
+                        adminUser,
+                        "Admin"))
+                {
+                    await userManager.AddToRoleAsync(
+                        adminUser,
+                        "Admin");
+                }
             }
         }
     }
