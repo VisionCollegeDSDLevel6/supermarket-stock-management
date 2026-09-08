@@ -1,0 +1,63 @@
+=== REST API Documentation (Swagger) ===
+
+The project uses Swagger/OpenAPI for automatic REST API documentation.
+All backend API endpoints are documented and testable via Swagger UI.
+
+Location (when running locally):
+  https://localhost:5001/swagger
+
+Available API Endpoints:
+
+  CategoriesApi
+    GET    /api/categories       - List all categories
+    GET    /api/categories/{id}  - Get category by ID
+
+  ProductsApi
+    GET    /api/products         - List all products (supports search/filter/sort)
+    POST   /api/products         - Create a new product
+    GET    /api/products/{id}    - Get product by ID
+    PUT    /api/products/{id}    - Update a product
+    DELETE /api/products/{id}    - Delete a product
+
+    Search/Filter Query Parameters:
+    ?searchTerm=&categoryId=&minPrice=&maxPrice=&sortBy=&sortOrder=&lowStockOnly=
+
+  StaffsApi
+    GET    /api/staffs           - List all staff
+    POST   /api/staffs          - Create a new staff member
+    GET    /api/staffs/{id}     - Get staff by ID
+    PUT    /api/staffs/{id}     - Update staff
+    DELETE /api/staffs/{id}     - Delete staff
+
+  StocksApi
+    GET    /api/stocks           - List all stock items
+    POST   /api/stocks          - Create stock entry
+    GET    /api/stocks/{id}     - Get stock by ID
+    PUT    /api/stocks/{id}     - Update stock
+    DELETE /api/stocks/{id}     - Delete stock
+
+=== Customer Frontend (FreshMart) ===
+
+Location: http://localhost:3000
+
+Pages:
+  Home          - /           Hero banner + feature cards
+  Products      - /products   Product grid with search, filter, sort
+  Categories    - /categories Browse products by category
+  Product Detail - /products/:id  Detailed product information
+
+=== Admin Dashboard (StockFlow) ===
+
+Location: https://localhost:5001
+
+Login with:
+  admin@stockflow.co.nz / Admin123!
+  ngthanh123426@gmail.com / Admin123!
+
+Features:
+  - Dashboard with inventory overview
+  - Product CRUD management
+  - Category management
+  - Stock management
+  - Staff management with role-based access (Admin, Manager, Staff)
+  - Authentication & Authorization
