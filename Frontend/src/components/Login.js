@@ -4,20 +4,42 @@ import { Link } from 'react-router-dom'
 function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [loggedIn, setLoggedIn] = useState(false)
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault()
-    // Demo login — no backend API, just UI demo
-    if (email && password) {
-      setLoggedIn(true)
+    setError('')
+    setLoading(true)
+
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      })
+
+      const data = await res.json()
+
+      if (!data.success) {
+        setError(data.message || 'Login failed')
+        setLoading(false)
+        return
+      }
+
+      setUser(data)
+    } catch {
+      setError('Unable to connect to server. Make sure the backend is running.')
+    } finally {
+      setLoading(false)
     }
   }
 
-  if (loggedIn) {
+  if (user) {
     return (
       <div className="container my-5 text-center">
-        <div className="card shadow-sm border-0 mx-auto" style={{ maxWidth: '400px' }}>
+        <div className="card shadow-sm border-0 mx-auto" style={{ maxWidth: '450px' }}>
           <div className="card-body py-5">
             <div className="text-success mb-3">
               <svg width="48" height="48" fill="currentColor" viewBox="0 0 16 16">
@@ -25,11 +47,20 @@ function Login() {
               </svg>
             </div>
             <h4 className="fw-bold text-success mb-2">Welcome Back!</h4>
-            <p className="text-muted mb-4">You are now logged in as <strong>{email}</strong></p>
-            <button className="btn btn-outline-danger btn-sm" onClick={() => setLoggedIn(false)}>
-              Logout
-            </button>
-            <Link to="/products" className="btn btn-success ms-2">Browse Products</Link>
+            <p className="text-muted mb-1">Logged in as <strong>{user.email}</strong></p>
+            {user.roles && user.roles.length > 0 && (
+              <div className="mb-3">
+                {user.roles.map(r => (
+                  <span key={r} className="badge bg-success bg-opacity-10 text-success me-1">{r}</span>
+                ))}
+              </div>
+            )}
+            <div className="d-flex justify-content-center gap-2">
+              <button className="btn btn-outline-danger btn-sm" onClick={() => setUser(null)}>
+                Logout
+              </button>
+              <Link to="/products" className="btn btn-success btn-sm">Browse Products</Link>
+            </div>
           </div>
         </div>
       </div>
@@ -45,12 +76,16 @@ function Login() {
               <h3 className="fw-bold text-center mb-1">Login</h3>
               <p className="text-muted text-center small mb-4">Sign in to your FreshMart account</p>
 
+              {error && (
+                <div className="alert alert-danger py-2 small">{error}</div>
+              )}
+
               <form onSubmit={handleLogin}>
                 <div className="mb-3">
                   <label className="form-label">Email</label>
                   <input type="email" className="form-control"
                     value={email} onChange={e => setEmail(e.target.value)}
-                    placeholder="customer@example.com" required />
+                    placeholder="admin@stockflow.co.nz" required />
                 </div>
                 <div className="mb-3">
                   <label className="form-label">Password</label>
@@ -58,14 +93,11 @@ function Login() {
                     value={password} onChange={e => setPassword(e.target.value)}
                     placeholder="Enter password" required />
                 </div>
-                <button type="submit" className="btn btn-success w-100 py-2 fw-semibold">
-                  Sign In
+                <button type="submit" className="btn btn-success w-100 py-2 fw-semibold"
+                  disabled={loading}>
+                  {loading ? 'Signing in...' : 'Sign In'}
                 </button>
               </form>
-
-              <p className="text-center text-muted small mt-3 mb-0">
-                Demo: enter any email + password to login
-              </p>
 
               <hr />
               <p className="text-center small mb-0">
@@ -76,8 +108,20 @@ function Login() {
 
           <div className="card shadow-sm border-0 mt-3">
             <div className="card-body p-3">
-              <h6 className="fw-bold mb-2">Admin Login</h6>
-              <p className="small text-muted mb-1">For staff, use the admin dashboard:</p>
+              <h6 className="fw-bold mb-2">Demo Accounts</h6>
+              <div className="small">
+                <p className="mb-1"><strong>Admin:</strong> admin@stockflow.co.nz / Admin123!</p>
+                <p className="mb-1"><strong>Admin:</strong> ngthanh123426@gmail.com / Admin123!</p>
+                <p className="mb-1"><strong>Manager:</strong> manager@stockflow.com / Admin123!</p>
+                <p className="mb-0"><strong>Staff:</strong> staff@stockflow.com / Admin123!</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="card shadow-sm border-0 mt-3">
+            <div className="card-body p-3">
+              <h6 className="fw-bold mb-2">Admin Panel</h6>
+              <p className="small text-muted mb-1">For staff dashboard and management:</p>
               <a href="https://localhost:5001" className="btn btn-outline-success btn-sm w-100"
                 target="_blank" rel="noreferrer">
                 Go to Admin Panel
