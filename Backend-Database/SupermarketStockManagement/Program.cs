@@ -74,6 +74,22 @@ using (var scope = app.Services.CreateScope())
             exception,
             "An error occurred while seeding Identity data.");
     }
+
+    // Fill in default product images when none is set, so the customer
+    // frontend can display real product photos across all environments.
+    try
+    {
+        await ProductImageSeeder.SeedProductImagesAsync(services);
+    }
+    catch (Exception exception)
+    {
+        var logger = services
+            .GetRequiredService<ILogger<Program>>();
+
+        logger.LogError(
+            exception,
+            "An error occurred while seeding product images.");
+    }
 }
 
 // Enable Swagger in Development
