@@ -56,28 +56,6 @@ function Contact() {
 
           <div className="row g-4">
             <div className="col-md-5">
-              <div className="card shadow-sm border-0 mb-3">
-                <div className="card-body p-4">
-                  <h5 className="fw-semibold mb-3">Get in Touch</h5>
-                  <div className="mb-3">
-                    <p className="fw-semibold small text-muted mb-1">📍 Address</p>
-                    <p className="small mb-0">123 FreshMart Lane, Auckland CBD, New Zealand</p>
-                  </div>
-                  <div className="mb-3">
-                    <p className="fw-semibold small text-muted mb-1">📧 Email</p>
-                    <p className="small mb-0">support@freshmart.co.nz</p>
-                  </div>
-                  <div className="mb-3">
-                    <p className="fw-semibold small text-muted mb-1">📞 Phone</p>
-                    <p className="small mb-0">+64 9 123 4567</p>
-                  </div>
-                  <div>
-                    <p className="fw-semibold small text-muted mb-1">🕐 Hours</p>
-                    <p className="small mb-0">Mon–Sat: 7:00 AM – 9:00 PM<br />Sun: 8:00 AM – 6:00 PM</p>
-                  </div>
-                </div>
-              </div>
-
               <div className="card shadow-sm border-0">
                 <div className="card-body p-4">
                   <h5 className="fw-semibold mb-2">Quick Links</h5>
