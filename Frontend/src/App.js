@@ -34,7 +34,7 @@ function AppContent() {
             <span className="navbar-toggler-icon"></span>
           </button>
           <div className={`navbar-collapse ${menuOpen ? 'show' : ''}`} id="navbarNav">
-            <ul className="navbar-nav ms-auto">
+            <ul className="navbar-nav">
               <li className="nav-item">
                 <Link className={`nav-link ${location.pathname === '/' ? 'active' : ''}`} to="/"
                   onClick={() => setMenuOpen(false)}>Home</Link>
@@ -48,16 +48,18 @@ function AppContent() {
                   onClick={() => setMenuOpen(false)}>Categories</Link>
               </li>
               <li className="nav-item">
-                <Link className={`nav-link ${location.pathname.startsWith('/login') ? 'active' : ''}`} to="/login"
-                  onClick={() => setMenuOpen(false)}>Login</Link>
-              </li>
-              <li className="nav-item">
                 <Link className={`nav-link ${location.pathname.startsWith('/about') ? 'active' : ''}`} to="/about"
                   onClick={() => setMenuOpen(false)}>About</Link>
               </li>
               <li className="nav-item">
                 <Link className={`nav-link ${location.pathname.startsWith('/contact') ? 'active' : ''}`} to="/contact"
                   onClick={() => setMenuOpen(false)}>Contact</Link>
+              </li>
+            </ul>
+            <ul className="navbar-nav ms-auto">
+              <li className="nav-item">
+                <Link className={`nav-link ${location.pathname.startsWith('/login') ? 'active' : ''}`} to="/login"
+                  onClick={() => setMenuOpen(false)}>Login</Link>
               </li>
               <li className="nav-item">
                 <Link className={`nav-link position-relative ${location.pathname.startsWith('/cart') ? 'active' : ''}`} to="/cart"
@@ -69,6 +71,7 @@ function AppContent() {
                 </Link>
               </li>
             </ul>
+          </div>
           </div>
         </div>
       </nav>
