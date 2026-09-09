@@ -6,6 +6,8 @@ import CategoryList from './components/CategoryList'
 import Cart from './components/Cart'
 import Checkout from './components/Checkout'
 import Login from './components/Login'
+import About from './components/About'
+import Contact from './components/Contact'
 import { CartProvider, useCart } from './context/CartContext'
 import './App.css'
 
@@ -50,6 +52,14 @@ function AppContent() {
                   onClick={() => setMenuOpen(false)}>Login</Link>
               </li>
               <li className="nav-item">
+                <Link className={`nav-link ${location.pathname.startsWith('/about') ? 'active' : ''}`} to="/about"
+                  onClick={() => setMenuOpen(false)}>About</Link>
+              </li>
+              <li className="nav-item">
+                <Link className={`nav-link ${location.pathname.startsWith('/contact') ? 'active' : ''}`} to="/contact"
+                  onClick={() => setMenuOpen(false)}>Contact</Link>
+              </li>
+              <li className="nav-item">
                 <Link className={`nav-link position-relative ${location.pathname.startsWith('/cart') ? 'active' : ''}`} to="/cart"
                   onClick={() => setMenuOpen(false)}>
                   Cart
@@ -72,6 +82,8 @@ function AppContent() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
         </Routes>
       </main>
 
