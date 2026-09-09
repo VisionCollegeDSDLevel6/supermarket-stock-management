@@ -72,7 +72,6 @@ function AppContent() {
               </li>
             </ul>
           </div>
-          </div>
         </div>
       </nav>
 
