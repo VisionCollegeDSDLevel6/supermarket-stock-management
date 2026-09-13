@@ -6,6 +6,7 @@ import CategoryList from './components/CategoryList'
 import Cart from './components/Cart'
 import Checkout from './components/Checkout'
 import Login from './components/Login'
+import Signup from './components/Signup'
 import About from './components/About'
 import Contact from './components/Contact'
 import { CartProvider, useCart } from './context/CartContext'
@@ -58,6 +59,10 @@ function AppContent() {
             </ul>
             <ul className="navbar-nav ms-auto">
               <li className="nav-item">
+                <Link className={`nav-link ${location.pathname.startsWith('/signup') ? 'active' : ''}`} to="/signup"
+                  onClick={() => setMenuOpen(false)}>Sign Up</Link>
+              </li>
+              <li className="nav-item">
                 <Link className={`nav-link ${location.pathname.startsWith('/login') ? 'active' : ''}`} to="/login"
                   onClick={() => setMenuOpen(false)}>Login</Link>
               </li>
@@ -84,6 +89,7 @@ function AppContent() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
         </Routes>

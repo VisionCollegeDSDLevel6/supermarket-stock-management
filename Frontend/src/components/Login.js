@@ -103,6 +103,10 @@ function Login() {
               <p className="text-center small mb-0">
                 <Link to="/products" className="text-decoration-none">Continue as Guest</Link>
               </p>
+              <p className="text-center small mb-0 mt-2">
+                New to FreshMart?{" "}
+                <Link to="/signup" className="text-decoration-none fw-semibold">Create an account</Link>
+              </p>
             </div>
           </div>
         </div>
