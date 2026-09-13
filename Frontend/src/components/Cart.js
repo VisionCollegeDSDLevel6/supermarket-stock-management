@@ -3,7 +3,15 @@ import { Link } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 
 function Cart() {
-  const { items, removeFromCart, updateQuantity, cartTotal, clearCart } = useCart()
+  const { items, removeFromCart, updateQuantity, cartTotal, clearCart, hydrated } = useCart()
+
+  if (!hydrated) {
+    return (
+      <div className="container text-center py-5">
+        <div className="spinner-border text-success" role="status"></div>
+      </div>
+    )
+  }
 
   if (items.length === 0) {
     return (
