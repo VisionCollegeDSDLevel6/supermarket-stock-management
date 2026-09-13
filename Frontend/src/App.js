@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Routes, Route, Link, useLocation } from 'react-router-dom'
 import ProductList from './components/ProductList'
 import ProductDetail from './components/ProductDetail'
+import CategoryList from './components/CategoryList'
 import Cart from './components/Cart'
 import Checkout from './components/Checkout'
 import Login from './components/Login'
@@ -47,6 +48,10 @@ function AppContent() {
                   onClick={() => setMenuOpen(false)}>About</Link>
               </li>
               <li className="nav-item">
+                <Link className={`nav-link ${location.pathname.startsWith('/categories') ? 'active' : ''}`} to="/categories"
+                  onClick={() => setMenuOpen(false)}>Categories</Link>
+              </li>
+              <li className="nav-item">
                 <Link className={`nav-link ${location.pathname.startsWith('/contact') ? 'active' : ''}`} to="/contact"
                   onClick={() => setMenuOpen(false)}>Contact</Link>
               </li>
@@ -75,6 +80,7 @@ function AppContent() {
           <Route path="/" element={<Home />} />
           <Route path="/products" element={<ProductList />} />
           <Route path="/products/:id" element={<ProductDetail />} />
+          <Route path="/categories" element={<CategoryList />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/login" element={<Login />} />
