@@ -27,11 +27,12 @@ export default defineConfig({
   },
   server: {
     port: 3000,
-    proxy: {
-      '/api': {
-        target: 'https://localhost:5001',
-        secure: false,
-      },
-    },
+   proxy: {
+  '/api': {
+    target: 'https://localhost:5001',
+    changeOrigin: true,
+    secure: false,
+  },
+},
   },
 })

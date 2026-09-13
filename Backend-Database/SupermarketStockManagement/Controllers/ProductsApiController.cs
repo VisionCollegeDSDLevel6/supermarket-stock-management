@@ -16,7 +16,7 @@ public class ProductsApiController : ControllerBase
     }
 
     // GET: api/products
-    // Supports searching, filtering and sorting through query parameters
+    // Public endpoint for customer frontend
     [AllowAnonymous]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Product>>> GetProducts(
@@ -33,7 +33,6 @@ public class ProductsApiController : ControllerBase
             .Include(product => product.Stock)
             .AsQueryable();
 
-        // Search by product name or description
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
             searchTerm = searchTerm.Trim();
@@ -44,28 +43,24 @@ public class ProductsApiController : ControllerBase
                  product.Description.Contains(searchTerm)));
         }
 
-        // Filter by category
         if (categoryId.HasValue)
         {
             query = query.Where(product =>
                 product.CategoryId == categoryId.Value);
         }
 
-        // Filter by minimum price
         if (minPrice.HasValue)
         {
             query = query.Where(product =>
                 product.Price >= minPrice.Value);
         }
 
-        // Filter by maximum price
         if (maxPrice.HasValue)
         {
             query = query.Where(product =>
                 product.Price <= maxPrice.Value);
         }
 
-        // Show only products with low stock
         if (lowStockOnly)
         {
             query = query.Where(product =>
@@ -74,24 +69,19 @@ public class ProductsApiController : ControllerBase
                 product.Stock.LowStockThreshold);
         }
 
-        // Sort the product results
         query = sortBy?.ToLower() switch
         {
             "name" when sortOrder == "desc" =>
-                query.OrderByDescending(product =>
-                    product.Name),
+                query.OrderByDescending(product => product.Name),
 
             "name" =>
-                query.OrderBy(product =>
-                    product.Name),
+                query.OrderBy(product => product.Name),
 
             "price" when sortOrder == "desc" =>
-                query.OrderByDescending(product =>
-                    product.Price),
+                query.OrderByDescending(product => product.Price),
 
             "price" =>
-                query.OrderBy(product =>
-                    product.Price),
+                query.OrderBy(product => product.Price),
 
             "category" when sortOrder == "desc" =>
                 query.OrderByDescending(product =>
@@ -109,14 +99,15 @@ public class ProductsApiController : ControllerBase
                 query.OrderBy(product =>
                     product.Stock!.Quantity),
 
-            _ => query.OrderBy(product =>
-                product.Name)
+            _ =>
+                query.OrderBy(product => product.Name)
         };
 
         return await query.ToListAsync();
     }
 
     // GET: api/products/5
+    // Public endpoint for customer frontend
     [AllowAnonymous]
     [HttpGet("{productid}")]
     public async Task<ActionResult<Product>> GetProduct(int productid)
