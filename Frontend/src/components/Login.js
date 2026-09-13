@@ -82,14 +82,14 @@ function Login() {
 
               <form onSubmit={handleLogin}>
                 <div className="mb-3">
-                  <label className="form-label">Email</label>
-                  <input type="email" className="form-control"
+                  <label className="form-label" htmlFor="login-email">Email</label>
+                  <input id="login-email" type="email" className="form-control"
                     value={email} onChange={e => setEmail(e.target.value)}
                     placeholder="admin@stockflow.co.nz" required />
                 </div>
                 <div className="mb-3">
-                  <label className="form-label">Password</label>
-                  <input type="password" className="form-control"
+                  <label className="form-label" htmlFor="login-password">Password</label>
+                  <input id="login-password" type="password" className="form-control"
                     value={password} onChange={e => setPassword(e.target.value)}
                     placeholder="Enter password" required />
                 </div>

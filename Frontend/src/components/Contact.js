@@ -83,28 +83,28 @@ function Contact() {
                   <form onSubmit={handleSubmit}>
                     <div className="row g-3">
                       <div className="col-md-6">
-                        <label className="form-label">Name *</label>
-                        <input type="text" className="form-control" name="name"
+                        <label className="form-label" htmlFor="contact-name">Name *</label>
+                        <input id="contact-name" type="text" className="form-control" name="name"
                           value={form.name} onChange={handleChange} required />
                       </div>
                       <div className="col-md-6">
-                        <label className="form-label">Email *</label>
-                        <input type="email" className="form-control" name="email"
+                        <label className="form-label" htmlFor="contact-email">Email *</label>
+                        <input id="contact-email" type="email" className="form-control" name="email"
                           value={form.email} onChange={handleChange} required />
                       </div>
                       <div className="col-md-6">
-                        <label className="form-label">Phone</label>
-                        <input type="tel" className="form-control" name="phone"
+                        <label className="form-label" htmlFor="contact-phone">Phone</label>
+                        <input id="contact-phone" type="tel" className="form-control" name="phone"
                           value={form.phone} onChange={handleChange} />
                       </div>
                       <div className="col-md-6">
-                        <label className="form-label">Subject *</label>
-                        <input type="text" className="form-control" name="subject"
+                        <label className="form-label" htmlFor="contact-subject">Subject *</label>
+                        <input id="contact-subject" type="text" className="form-control" name="subject"
                           value={form.subject} onChange={handleChange} required />
                       </div>
                       <div className="col-12">
-                        <label className="form-label">Message *</label>
-                        <textarea className="form-control" name="message" rows="4"
+                        <label className="form-label" htmlFor="contact-message">Message *</label>
+                        <textarea id="contact-message" className="form-control" name="message" rows="4"
                           value={form.message} onChange={handleChange} required />
                       </div>
                       <div className="col-12">
