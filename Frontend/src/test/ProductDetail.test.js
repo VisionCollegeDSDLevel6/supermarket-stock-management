@@ -1,12 +1,11 @@
 import React from 'react'
-import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import { CartProvider } from '../context/CartContext'
 import ProductDetail from '../components/ProductDetail'
 
-vi.mock('../api/productsApi', () => ({
-  getProduct: vi.fn(),
+jest.mock('../api/productsApi', () => ({
+  getProduct: jest.fn(),
 }))
 
 import { getProduct } from '../api/productsApi'
@@ -23,7 +22,7 @@ const renderDetail = (id) =>
   )
 
 beforeEach(() => {
-  vi.clearAllMocks()
+  jest.clearAllMocks()
 })
 
 describe('F09 - Product details show correct name, price, category, image and stock status', () => {

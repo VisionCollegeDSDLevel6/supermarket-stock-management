@@ -1,5 +1,4 @@
 import React from 'react'
-import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { CartProvider, useCart } from '../context/CartContext'
@@ -37,7 +36,7 @@ const apple = { productId: 1, name: 'Apple', price: 5.00, imageUrl: null }
 const banana = { productId: 2, name: 'Banana', price: 2.00, imageUrl: null }
 
 beforeEach(() => {
-  vi.clearAllMocks()
+  jest.clearAllMocks()
   localStorage.clear()
   cartApi = {}
 })

@@ -1,13 +1,12 @@
 import React from 'react'
-import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { CartProvider } from '../context/CartContext'
 import ProductList from '../components/ProductList'
 
-vi.mock('../api/productsApi', () => ({
-  getProducts: vi.fn(),
+jest.mock('../api/productsApi', () => ({
+  getProducts: jest.fn(),
 }))
 
 import { getProducts } from '../api/productsApi'
@@ -29,9 +28,9 @@ const renderList = () =>
   )
 
 beforeEach(() => {
-  vi.clearAllMocks()
+  jest.clearAllMocks()
   getProducts.mockResolvedValue(mockProducts)
-  global.fetch = vi.fn(() =>
+  global.fetch = jest.fn(() =>
     Promise.resolve({ json: () => Promise.resolve(mockCategories) })
   )
 })

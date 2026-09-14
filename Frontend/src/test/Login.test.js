@@ -1,5 +1,4 @@
 import React from 'react'
-import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
@@ -13,8 +12,8 @@ const renderLogin = () =>
   )
 
 beforeEach(() => {
-  vi.clearAllMocks()
-  global.fetch = vi.fn()
+  jest.clearAllMocks()
+  global.fetch = jest.fn()
 })
 
 describe('F18 - Login displays the correct result for valid and invalid credentials', () => {

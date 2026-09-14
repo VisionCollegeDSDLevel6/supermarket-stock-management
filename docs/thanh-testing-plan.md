@@ -97,7 +97,7 @@ This document tracks Thanh's allocated testing work for Week 5 — Testing and F
 
 ## Tools and Evidence
 
-- **Vitest** + **React Testing Library** — automated frontend component and interaction tests (F01–F18)
+- **Jest** + **React Testing Library** — automated frontend component and interaction tests (F01–F18)
 - **xUnit** + EF Core test database — automated backend controller/API tests (T01–T18)
 - **Browser test checklist** — manual end-to-end testing of navigation, forms, cart and responsive behaviour
 - **OWASP ZAP** — automated vulnerability scanning of the customer frontend and public API
