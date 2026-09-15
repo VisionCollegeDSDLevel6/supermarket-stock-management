@@ -1,3 +1,7 @@
 .vs/
 **/bin/
 **/obj/
+
+# Testing evidence & plan (kept local only)
+docs/test-evidence/
+docs/thanh-testing-plan.md

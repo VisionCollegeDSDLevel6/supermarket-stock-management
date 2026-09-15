@@ -1,4 +1,8 @@
 node_modules/
 .vite/
 dist/
-.vite/
+
+# Tests (kept local only - not committed to GitHub)
+src/test/
+jest.config.js
+babel.config.js
