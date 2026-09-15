@@ -23,6 +23,71 @@ public class ContactApiController : ControllerBase
         public string Message { get; set; } = string.Empty;
     }
 
+    // GET: api/contact
+    // Lists all contact messages.
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<object>>> GetMessages(
+        [FromQuery] bool unreadOnly = false,
+        [FromQuery] int? count = null)
+    {
+        var query = _context.ContactMessages
+            .OrderByDescending(m => m.SubmittedAt)
+            .AsQueryable();
+
+        if (unreadOnly)
+        {
+            query = query.Where(m => !m.IsRead);
+        }
+
+        if (count.HasValue && count.Value > 0)
+        {
+            query = query.Take(count.Value);
+        }
+
+        var messages = await query
+            .Select(m => new
+            {
+                m.Id,
+                m.Name,
+                m.Email,
+                m.Phone,
+                m.Subject,
+                m.Message,
+                m.SubmittedAt,
+                m.IsRead
+            })
+            .ToListAsync();
+
+        return Ok(messages);
+    }
+
+    // GET: api/contact/{id}
+    [HttpGet("{id}")]
+    public async Task<ActionResult<object>> GetMessage(int id)
+    {
+        var message = await _context.ContactMessages
+            .Where(m => m.Id == id)
+            .Select(m => new
+            {
+                m.Id,
+                m.Name,
+                m.Email,
+                m.Phone,
+                m.Subject,
+                m.Message,
+                m.SubmittedAt,
+                m.IsRead
+            })
+            .FirstOrDefaultAsync();
+
+        if (message == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(message);
+    }
+
     // POST: api/contact
     [HttpPost]
     public async Task<IActionResult> Submit([FromBody] ContactRequest request)
@@ -50,5 +115,22 @@ public class ContactApiController : ControllerBase
         await _context.SaveChangesAsync();
 
         return Ok(new { success = true, message = "Your message has been sent. We'll get back to you soon!" });
+    }
+
+    // PUT: api/contact/{id}/read
+    // Marks a message as read.
+    [HttpPut("{id}/read")]
+    public async Task<IActionResult> MarkAsRead(int id)
+    {
+        var message = await _context.ContactMessages.FindAsync(id);
+        if (message == null)
+        {
+            return NotFound();
+        }
+
+        message.IsRead = true;
+        await _context.SaveChangesAsync();
+
+        return Ok(new { success = true, message = "Message marked as read." });
     }
 }

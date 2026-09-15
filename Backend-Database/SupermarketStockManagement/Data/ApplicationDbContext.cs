@@ -17,10 +17,17 @@ namespace SupermarketStockManagement.Data
         public DbSet<StockHistory> StockHistories { get; set; }
         public DbSet<Staff> Staff { get; set; }
         public DbSet<ContactMessage> ContactMessages { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            builder.Entity<Order>()
+                .HasMany(o => o.Items)
+                .WithOne(i => i.Order)
+                .HasForeignKey(i => i.OrderId);
 
             builder.Entity<Product>()
                 .HasOne(p => p.Stock)

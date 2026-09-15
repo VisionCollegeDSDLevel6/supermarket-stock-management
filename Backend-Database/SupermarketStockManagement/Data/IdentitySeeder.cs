@@ -31,22 +31,26 @@ namespace SupermarketStockManagement.Data
                 }
             }
 
-            // Default administrator accounts. Add new administrator emails here.
-            var adminAccounts = new[]
+            // Default accounts used by the system. Each account is created
+            // only if missing, so existing accounts (and their passwords)
+            // are never overwritten.
+            var accounts = new[]
             {
-                new { Email = "admin@stockflow.co.nz", Password = "Admin123!" },
-                new { Email = "ngthanh123426@gmail.com", Password = "Admin123!" },
+                new { Email = "admin@stockflow.co.nz", Password = "Admin123!", Role = "Admin" },
+                new { Email = "ngthanh123426@gmail.com", Password = "Admin123!", Role = "Admin" },
+                new { Email = "manager@stockflow.com", Password = "Manager@123", Role = "Manager" },
+                new { Email = "staff@stockflow.com", Password = "Staff@123", Role = "Staff" },
             };
 
-            foreach (var account in adminAccounts)
+            foreach (var account in accounts)
             {
-                var adminUser =
+                var user =
                     await userManager.FindByEmailAsync(account.Email);
 
-                // Create the administrator account if it does not exist
-                if (adminUser == null)
+                // Create the account if it does not exist
+                if (user == null)
                 {
-                    adminUser = new IdentityUser
+                    user = new IdentityUser
                     {
                         UserName = account.Email,
                         Email = account.Email,
@@ -55,7 +59,7 @@ namespace SupermarketStockManagement.Data
 
                     var createResult =
                         await userManager.CreateAsync(
-                            adminUser,
+                            user,
                             account.Password);
 
                     if (!createResult.Succeeded)
@@ -66,18 +70,14 @@ namespace SupermarketStockManagement.Data
                                 error.Description));
 
                         throw new Exception(
-                            $"Cannot create the administrator account {account.Email}: {errors}");
+                            $"Cannot create the account {account.Email}: {errors}");
                     }
                 }
 
-                // Assign the Admin role to the administrator account
-                if (!await userManager.IsInRoleAsync(
-                        adminUser,
-                        "Admin"))
+                // Assign the matching role to the account
+                if (!await userManager.IsInRoleAsync(user, account.Role))
                 {
-                    await userManager.AddToRoleAsync(
-                        adminUser,
-                        "Admin");
+                    await userManager.AddToRoleAsync(user, account.Role);
                 }
             }
         }

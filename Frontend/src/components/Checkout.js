@@ -3,10 +3,23 @@ import { Link, Navigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 
 function Checkout() {
-  const { items, cartTotal, clearCart } = useCart()
+  const { items, cartTotal, clearCart, hydrated } = useCart()
   const [form, setForm] = useState({ name: '', email: '', address: '', phone: '' })
   const [submitted, setSubmitted] = useState(false)
+  const [orderId, setOrderId] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const [errors, setErrors] = useState({})
+
+  // Wait for the cart to hydrate from localStorage before deciding
+  // whether to redirect to an empty cart.
+  if (!hydrated) {
+    return (
+      <div className="container text-center py-5">
+        <div className="spinner-border text-success" role="status"></div>
+      </div>
+    )
+  }
 
   if (items.length === 0 && !submitted) {
     return <Navigate to="/cart" />
@@ -23,7 +36,10 @@ function Checkout() {
               </svg>
             </div>
             <h2 className="fw-bold text-success mb-2">Order Placed!</h2>
-            <p className="text-muted mb-4">Thank you, <strong>{form.name}</strong>! Your order has been placed successfully.</p>
+            <p className="text-muted mb-1">Thank you, <strong>{form.name}</strong>! Your order has been placed successfully.</p>
+            {orderId && (
+              <p className="small text-muted mb-1">Order reference: <strong>#{orderId}</strong></p>
+            )}
             <p className="small text-muted mb-4">A confirmation email will be sent to <strong>{form.email}</strong></p>
             <Link to="/products" className="btn btn-success">Continue Shopping</Link>
           </div>
@@ -42,11 +58,44 @@ function Checkout() {
     return Object.keys(errs).length === 0
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    if (validate()) {
+    setError('')
+    if (!validate()) return
+
+    setLoading(true)
+    try {
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customerName: form.name,
+          customerEmail: form.email,
+          customerPhone: form.phone,
+          deliveryAddress: form.address,
+          items: items.map(i => ({
+            productId: i.productId,
+            productName: i.name,
+            unitPrice: i.price,
+            quantity: i.quantity
+          }))
+        })
+      })
+      const data = await res.json()
+
+      if (!data.success) {
+        setError(data.message || 'Failed to place order')
+        setLoading(false)
+        return
+      }
+
+      setOrderId(data.orderId)
       clearCart()
       setSubmitted(true)
+    } catch {
+      setError('Unable to connect to server. Please try again.')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -97,8 +146,10 @@ function Checkout() {
                     placeholder="123 Main Street, Auckland" />
                   {errors.address && <div className="invalid-feedback">{errors.address}</div>}
                 </div>
-                <button type="submit" className="btn btn-success w-100 py-2 fw-semibold mt-2">
-                  Place Order — ${cartTotal.toFixed(2)}
+                {error && <div className="alert alert-danger py-2 small">{error}</div>}
+                <button type="submit" className="btn btn-success w-100 py-2 fw-semibold mt-2"
+                  disabled={loading}>
+                  {loading ? 'Placing Order...' : `Place Order — $${cartTotal.toFixed(2)}`}
                 </button>
               </form>
             </div>

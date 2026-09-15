@@ -56,28 +56,6 @@ function Contact() {
 
           <div className="row g-4">
             <div className="col-md-5">
-              <div className="card shadow-sm border-0 mb-3">
-                <div className="card-body p-4">
-                  <h5 className="fw-semibold mb-3">Get in Touch</h5>
-                  <div className="mb-3">
-                    <p className="fw-semibold small text-muted mb-1">📍 Address</p>
-                    <p className="small mb-0">123 FreshMart Lane, Auckland CBD, New Zealand</p>
-                  </div>
-                  <div className="mb-3">
-                    <p className="fw-semibold small text-muted mb-1">📧 Email</p>
-                    <p className="small mb-0">support@freshmart.co.nz</p>
-                  </div>
-                  <div className="mb-3">
-                    <p className="fw-semibold small text-muted mb-1">📞 Phone</p>
-                    <p className="small mb-0">+64 9 123 4567</p>
-                  </div>
-                  <div>
-                    <p className="fw-semibold small text-muted mb-1">🕐 Hours</p>
-                    <p className="small mb-0">Mon–Sat: 7:00 AM – 9:00 PM<br />Sun: 8:00 AM – 6:00 PM</p>
-                  </div>
-                </div>
-              </div>
-
               <div className="card shadow-sm border-0">
                 <div className="card-body p-4">
                   <h5 className="fw-semibold mb-2">Quick Links</h5>
@@ -105,28 +83,28 @@ function Contact() {
                   <form onSubmit={handleSubmit}>
                     <div className="row g-3">
                       <div className="col-md-6">
-                        <label className="form-label">Name *</label>
-                        <input type="text" className="form-control" name="name"
+                        <label className="form-label" htmlFor="contact-name">Name *</label>
+                        <input id="contact-name" type="text" className="form-control" name="name"
                           value={form.name} onChange={handleChange} required />
                       </div>
                       <div className="col-md-6">
-                        <label className="form-label">Email *</label>
-                        <input type="email" className="form-control" name="email"
+                        <label className="form-label" htmlFor="contact-email">Email *</label>
+                        <input id="contact-email" type="email" className="form-control" name="email"
                           value={form.email} onChange={handleChange} required />
                       </div>
                       <div className="col-md-6">
-                        <label className="form-label">Phone</label>
-                        <input type="tel" className="form-control" name="phone"
+                        <label className="form-label" htmlFor="contact-phone">Phone</label>
+                        <input id="contact-phone" type="tel" className="form-control" name="phone"
                           value={form.phone} onChange={handleChange} />
                       </div>
                       <div className="col-md-6">
-                        <label className="form-label">Subject *</label>
-                        <input type="text" className="form-control" name="subject"
+                        <label className="form-label" htmlFor="contact-subject">Subject *</label>
+                        <input id="contact-subject" type="text" className="form-control" name="subject"
                           value={form.subject} onChange={handleChange} required />
                       </div>
                       <div className="col-12">
-                        <label className="form-label">Message *</label>
-                        <textarea className="form-control" name="message" rows="4"
+                        <label className="form-label" htmlFor="contact-message">Message *</label>
+                        <textarea id="contact-message" className="form-control" name="message" rows="4"
                           value={form.message} onChange={handleChange} required />
                       </div>
                       <div className="col-12">

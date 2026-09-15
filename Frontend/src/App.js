@@ -6,6 +6,7 @@ import CategoryList from './components/CategoryList'
 import Cart from './components/Cart'
 import Checkout from './components/Checkout'
 import Login from './components/Login'
+import Signup from './components/Signup'
 import About from './components/About'
 import Contact from './components/Contact'
 import { CartProvider, useCart } from './context/CartContext'
@@ -34,7 +35,7 @@ function AppContent() {
             <span className="navbar-toggler-icon"></span>
           </button>
           <div className={`navbar-collapse ${menuOpen ? 'show' : ''}`} id="navbarNav">
-            <ul className="navbar-nav ms-auto">
+            <ul className="navbar-nav">
               <li className="nav-item">
                 <Link className={`nav-link ${location.pathname === '/' ? 'active' : ''}`} to="/"
                   onClick={() => setMenuOpen(false)}>Home</Link>
@@ -44,20 +45,26 @@ function AppContent() {
                   onClick={() => setMenuOpen(false)}>Products</Link>
               </li>
               <li className="nav-item">
-                <Link className={`nav-link ${location.pathname.startsWith('/categories') ? 'active' : ''}`} to="/categories"
-                  onClick={() => setMenuOpen(false)}>Categories</Link>
-              </li>
-              <li className="nav-item">
-                <Link className={`nav-link ${location.pathname.startsWith('/login') ? 'active' : ''}`} to="/login"
-                  onClick={() => setMenuOpen(false)}>Login</Link>
-              </li>
-              <li className="nav-item">
                 <Link className={`nav-link ${location.pathname.startsWith('/about') ? 'active' : ''}`} to="/about"
                   onClick={() => setMenuOpen(false)}>About</Link>
               </li>
               <li className="nav-item">
+                <Link className={`nav-link ${location.pathname.startsWith('/categories') ? 'active' : ''}`} to="/categories"
+                  onClick={() => setMenuOpen(false)}>Categories</Link>
+              </li>
+              <li className="nav-item">
                 <Link className={`nav-link ${location.pathname.startsWith('/contact') ? 'active' : ''}`} to="/contact"
                   onClick={() => setMenuOpen(false)}>Contact</Link>
+              </li>
+            </ul>
+            <ul className="navbar-nav ms-auto">
+              <li className="nav-item">
+                <Link className={`nav-link ${location.pathname.startsWith('/signup') ? 'active' : ''}`} to="/signup"
+                  onClick={() => setMenuOpen(false)}>Sign Up</Link>
+              </li>
+              <li className="nav-item">
+                <Link className={`nav-link ${location.pathname.startsWith('/login') ? 'active' : ''}`} to="/login"
+                  onClick={() => setMenuOpen(false)}>Login</Link>
               </li>
               <li className="nav-item">
                 <Link className={`nav-link position-relative ${location.pathname.startsWith('/cart') ? 'active' : ''}`} to="/cart"
@@ -82,6 +89,7 @@ function AppContent() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
         </Routes>

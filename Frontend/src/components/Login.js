@@ -82,14 +82,14 @@ function Login() {
 
               <form onSubmit={handleLogin}>
                 <div className="mb-3">
-                  <label className="form-label">Email</label>
-                  <input type="email" className="form-control"
+                  <label className="form-label" htmlFor="login-email">Email</label>
+                  <input id="login-email" type="email" className="form-control"
                     value={email} onChange={e => setEmail(e.target.value)}
                     placeholder="admin@stockflow.co.nz" required />
                 </div>
                 <div className="mb-3">
-                  <label className="form-label">Password</label>
-                  <input type="password" className="form-control"
+                  <label className="form-label" htmlFor="login-password">Password</label>
+                  <input id="login-password" type="password" className="form-control"
                     value={password} onChange={e => setPassword(e.target.value)}
                     placeholder="Enter password" required />
                 </div>
@@ -102,6 +102,10 @@ function Login() {
               <hr />
               <p className="text-center small mb-0">
                 <Link to="/products" className="text-decoration-none">Continue as Guest</Link>
+              </p>
+              <p className="text-center small mb-0 mt-2">
+                New to FreshMart?{" "}
+                <Link to="/signup" className="text-decoration-none fw-semibold">Create an account</Link>
               </p>
             </div>
           </div>
